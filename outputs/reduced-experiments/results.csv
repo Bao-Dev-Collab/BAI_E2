@@ -1,0 +1,5 @@
+model,learning_rate,batch_size,best_epoch,epochs_completed,best_validation_loss,validation_accuracy_at_best_loss,train_eval_loss_at_best_loss,train_eval_accuracy_at_best_loss,selected_by_validation,test_loss,test_accuracy,checkpoint
+vgg16,0.01,16,4,5,1.6225091012136954,0.8795669824086604,0.6964816576330083,0.9265555933356001,False,,,outputs\reduced-experiments\vgg16_lr0.01_bs16\best_model.pth
+vgg16,0.001,16,4,5,0.28306374865734046,0.9133964817320703,0.12981151704280533,0.9513770826249575,True,0.34498186124208285,0.8879803761242846,outputs\reduced-experiments\vgg16_lr0.001_bs16\best_model.pth
+densenet121,0.01,16,1,4,0.47662966386370953,0.8660351826792964,0.3976937367495488,0.8809928595715742,False,,,outputs\reduced-experiments\densenet121_lr0.01_bs16\best_model.pth
+densenet121,0.001,16,4,5,0.2767479607207809,0.918809201623816,0.184403225985368,0.9595375722543352,True,0.323645575642667,0.9130553284273644,outputs\reduced-experiments\densenet121_lr0.001_bs16\best_model.pth
