@@ -55,16 +55,17 @@
     h3 { margin: 26px 0 8px; color: var(--navy); font-size: 1.16rem; }
     p { margin: 10px 0; }
     .lead { color: var(--muted); font-size: 1.08rem; }
-    .metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 24px 0; }
-    .metric { padding: 18px; border: 1px solid var(--line); border-radius: 14px; background: #f8fbfd; }
-    .metric strong { display: block; color: var(--teal); font-size: 1.8rem; line-height: 1.2; }
-    .metric span { color: var(--muted); font-size: .9rem; }
     .callout { margin: 18px 0; padding: 14px 18px; border-left: 4px solid var(--teal); border-radius: 8px; background: #eef8f6; }
     .note { color: var(--muted); font-size: .9rem; }
     .grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; align-items: start; }
     figure { margin: 18px 0; }
     figure img { display: block; width: 100%; height: auto; border: 1px solid var(--line); border-radius: 12px; }
     figcaption { margin-top: 8px; color: var(--muted); font-size: .88rem; text-align: center; }
+    .dataset-figures { grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); align-items: stretch; }
+    .dataset-figures figure { display: flex; flex-direction: column; justify-content: center; margin: 18px 0; }
+    .validation-row { background: #eef8f3; }
+    .validation-row td:first-child { border-left: 3px solid var(--green); }
+    .validation-figure { margin-top: 22px; }
     table { width: 100%; margin: 16px 0; border-collapse: collapse; }
     th, td { padding: 11px 13px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
     th { color: var(--navy); background: #f3f7fb; font-size: .9rem; }
@@ -82,12 +83,65 @@
     .conclusion { border: 0; color: #fff; background: linear-gradient(125deg, #173b61, #16877b); }
     .conclusion h2 { color: #fff; }
     .conclusion p { color: #eaf5f5; }
+    section.proposal-grid {
+      display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px;
+      margin: 20px 0; padding: 0; border: 0; background: transparent; box-shadow: none;
+    }
+    .proposal-card {
+      position: relative; overflow: hidden; padding: 24px 26px;
+      border: 1px solid var(--line); border-radius: 16px; background: #fff;
+      box-shadow: 0 6px 18px rgba(27, 55, 82, .05);
+    }
+    .proposal-card::before, .report-section::before {
+      position: absolute; top: 0; right: 0; left: 0; height: 4px;
+      background: linear-gradient(90deg, var(--blue), var(--teal)); content: "";
+    }
+    .proposal-label { margin: 0 0 8px; color: var(--teal); font-size: .75rem; font-weight: 750; letter-spacing: .1em; }
+    .proposal-card h2 { margin: 0 0 12px; font-size: 1.32rem; }
+    .proposal-card p { margin: 8px 0; }
+    .proposal-lead { font-size: 1.08rem; font-weight: 650; line-height: 1.55; }
+    .proposal-tags { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 14px; }
+    .proposal-tag { padding: 4px 10px; border: 1px solid var(--line); border-radius: 999px; background: #f5f9fc; color: #355775; font-size: .82rem; font-weight: 650; }
+    .audience-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin: 12px 0; }
+    .audience { padding: 10px 12px; border-radius: 10px; background: #f3f7fb; }
+    .audience b { display: block; color: var(--navy); font-size: .9rem; }
+    .audience span { color: var(--muted); font-size: .82rem; }
+    .objective-list { display: grid; gap: 9px; margin: 12px 0 0; padding: 0; list-style: none; }
+    .objective-list li { display: grid; grid-template-columns: 28px 1fr; gap: 9px; align-items: start; }
+    .objective-list b { display: grid; width: 26px; height: 26px; place-items: center; border-radius: 50%; background: #e9f6f3; color: var(--teal); font-size: .8rem; }
+    .report-section { position: relative; overflow: hidden; }
+    .report-section > .proposal-label { margin-bottom: 7px; }
+    .report-section > h2 { margin-bottom: 18px; font-size: 1.65rem; }
+    .report-section > p:not(.proposal-label), .report-section > ul, .report-section > ol,
+    .report-section > .table-wrap { font-size: 1.04rem; }
+    .result-summary { padding: 28px clamp(22px, 4vw, 38px); }
+    .result-summary .proposal-label { margin-bottom: 6px; }
+    .result-summary h2 { margin-bottom: 8px; font-size: 1.55rem; }
+    .result-summary-intro { margin: 0 0 16px; color: var(--muted); }
+    .summary-results { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+    .summary-result { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 14px 16px; border: 1px solid var(--line); border-radius: 12px; background: #f8fbfd; }
+    .summary-result strong { color: var(--navy); }
+    .summary-result span { color: var(--muted); font-size: .9rem; }
+    .summary-result b { color: var(--teal); font-size: 1rem; white-space: nowrap; }
+    .summary-takeaway { margin: 14px 0 0; padding: 11px 14px; border-left: 3px solid var(--teal); border-radius: 7px; background: #eef8f6; font-size: .94rem; }
+    .results-table { font-size: .92rem; }
+    .results-table th, .results-table td { padding: 10px 12px; }
+    .results-table .selected-row { background: #eef8f3; }
+    .results-table .selected-row td:first-child { border-left: 3px solid var(--green); }
+    .result-notes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin: 18px 0; }
+    .result-note { padding: 15px 16px; border: 1px solid var(--line); border-radius: 12px; background: #f8fbfd; }
+    .result-note b { display: block; margin-bottom: 5px; color: var(--navy); }
+    .result-note span { color: var(--muted); font-size: .9rem; }
+    .legend { color: var(--muted); font-size: .88rem; }
     footer { padding: 4px 0 36px; color: var(--muted); font-size: .88rem; text-align: center; }
     @media (max-width: 760px) {
-      .metrics { grid-template-columns: 1fr; }
       .grid-2 { grid-template-columns: 1fr; }
       .steps { grid-template-columns: 1fr; }
       .step { min-height: auto; }
+      section.proposal-grid { grid-template-columns: 1fr; }
+      .proposal-card { padding: 21px; }
+      .result-notes { grid-template-columns: 1fr; }
+      .summary-results { grid-template-columns: 1fr; }
     }
     @media print {
       body { background: #fff; font-size: 11pt; }
@@ -114,53 +168,72 @@
   </header>
   <nav aria-label="Mục lục báo cáo">
     <ul>
-      <li><a href="#tom-tat">Tóm tắt</a></li>
+      <li><a href="#ten-de-tai">Tên đề tài</a></li>
+      <li><a href="#huong-chinh">Hướng chính</a></li>
+      <li><a href="#nguoi-dung">Người dùng</a></li>
+      <li><a href="#muc-tieu">Mục tiêu</a></li>
       <li><a href="#du-lieu">Dữ liệu</a></li>
-      <li><a href="#tien-xu-ly">Tiền xử lý</a></li>
-      <li><a href="#mo-hinh">Mô hình</a></li>
-      <li><a href="#huan-luyen">Huấn luyện</a></li>
-      <li><a href="#ket-qua">Kết quả</a></li>
+      <li><a href="#pham-vi">Phạm vi</a></li>
+      <li><a href="#phuong-phap">Phương pháp</a></li>
+      <li><a href="#san-pham">Sản phẩm</a></li>
       <li><a href="#danh-gia">Đánh giá</a></li>
-      <li><a href="#ket-luan">Kết luận</a></li>
+      <li><a href="#ke-hoach">Kế hoạch và rủi ro</a></li>
     </ul>
   </nav>
   <main>
-    <section class="summary" id="tom-tat">
-      <h2>Tóm tắt kết quả</h2>
-      <p class="lead">Nhóm tận dụng trọng số pretrained ImageNet, điều chỉnh đầu phân loại thành 37 lớp và chọn checkpoint bằng validation trước khi đánh giá trên test.</p>
-      <div class="metrics">
-        <div class="metric"><strong>91.31%</strong><span>Test accuracy · DenseNet121</span></div>
-        <div class="metric"><strong>88.80%</strong><span>Test accuracy · VGG16</span></div>
-        <div class="metric"><strong>+2.51 điểm %</strong><span>Chênh lệch accuracy trong lần chạy này</span></div>
-      </div>
-      <div class="callout"><b>Kết quả chính:</b> DenseNet121 với learning rate 0.001, batch size 16 đạt test accuracy cao nhất trong các cấu hình được đánh giá. Đây là kết quả của split và lần chạy hiện tại, không phải kết luận tổng quát cho mọi bộ dữ liệu.</div>
+    <section class="proposal-grid" aria-label="Thông tin đề tài">
+      <article class="proposal-card" id="ten-de-tai">
+        <p class="proposal-label">01 / ĐỀ TÀI</p>
+        <h2>Tên đề tài</h2>
+        <p class="proposal-lead">Phân loại 37 giống chó, mèo trên Oxford-IIIT Pet bằng Transfer Learning.</p>
+        <div class="proposal-tags"><span class="proposal-tag">VGG16</span><span class="proposal-tag">DenseNet121</span><span class="proposal-tag">37 lớp</span></div>
+      </article>
+
+      <article class="proposal-card" id="huong-chinh">
+        <p class="proposal-label">02 / HƯỚNG NGHIÊN CỨU</p>
+        <h2>Hướng chính</h2>
+        <p>Thị giác máy tính: dùng mô hình pretrained ImageNet, thay classifier và so sánh kết quả trên cùng bộ dữ liệu.</p>
+        <div class="proposal-tags"><span class="proposal-tag">Transfer Learning</span><span class="proposal-tag">Thực nghiệm học thuật</span></div>
+      </article>
+
+      <article class="proposal-card" id="nguoi-dung">
+        <p class="proposal-label">03 / ĐỐI TƯỢNG</p>
+        <h2>Người sử dụng và vấn đề</h2>
+        <div class="audience-grid">
+          <div class="audience"><b>Sinh viên, giảng viên</b><span>Học và đánh giá mô hình</span></div>
+          <div class="audience"><b>Người xem demo</b><span>Tham khảo giống từ ảnh</span></div>
+        </div>
+        <p class="note">Phân biệt nhiều giống bằng mắt có thể khó. Mô hình chỉ hỗ trợ tham khảo, không thay thế đánh giá của con người.</p>
+      </article>
+
+      <article class="proposal-card" id="muc-tieu">
+        <p class="proposal-label">04 / MỤC TIÊU</p>
+        <h2>Mục tiêu thực nghiệm</h2>
+        <ul class="objective-list">
+          <li><b>1</b><span>So sánh VGG16 và DenseNet121.</span></li>
+          <li><b>2</b><span>Đánh giá learning rate 0.01 và 0.001.</span></li>
+          <li><b>3</b><span>Chọn bằng validation, báo cáo trên test.</span></li>
+        </ul>
+        <p class="note">Batch size 16 được giữ cố định trong các kết quả hiện có.</p>
+      </article>
     </section>
 
-    <section id="muc-tieu">
-      <h2>1. Mục tiêu và bài toán</h2>
-      <p>Bài toán là phân loại ảnh vào một trong 37 giống chó/mèo. Thay vì huấn luyện mạng sâu từ đầu, Transfer Learning sử dụng các đặc trưng đã học từ ImageNet, thay lớp phân loại cuối theo số lớp mới và huấn luyện phần phân loại.</p>
-      <ul>
-        <li>So sánh hai kiến trúc pretrained VGG16 và DenseNet121.</li>
-        <li>Đánh giá learning rate 0.01 và 0.001 trong các cấu hình đã chạy.</li>
-        <li>Chọn cấu hình theo validation, sau đó đánh giá test.</li>
-      </ul>
-      <p><b>Phạm vi:</b> kết quả CSV hiện tại gồm bốn cấu hình, batch size đều là 16. Vì vậy nhóm chưa so sánh batch size 16 với 32.</p>
-    </section>
-
-    <section id="du-lieu">
-      <h2>2. Bộ dữ liệu và kiểm tra dữ liệu</h2>
-      <p>Oxford-IIIT Pet được tổ chức theo định dạng <code>ImageFolder</code>: mỗi thư mục con tương ứng với một lớp. Train và validation được tách phân tầng 80/20 từ split trainval; test giữ nguyên split chính thức.</p>
+    <section class="report-section" id="du-lieu">
+      <p class="proposal-label">05 / DỮ LIỆU</p>
+      <h2>Dữ liệu</h2>
+      <p>Oxford-IIIT Pet được tổ chức theo định dạng <code>ImageFolder</code>: mỗi thư mục con tương ứng với một lớp. Project nhận các thư mục <code>train</code>, <code>val</code>, <code>test</code> đã chuẩn bị sẵn; mã nguồn kiểm tra sự tồn tại, ảnh và danh sách lớp, không tự tạo hay chia lại các split.</p>
+      <p><b>Nguồn:</b> <a href="https://www.robots.ox.ac.uk/~vgg/data/pets/">trang Oxford-IIIT Pet chính thức</a>. Trang dataset nêu giấy phép <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a> và bản quyền ảnh thuộc chủ sở hữu gốc. Project chưa ghi nhận bộ dữ liệu thay thế.</p>
       <div class="table-wrap">
         <table>
           <thead><tr><th>Tập dữ liệu</th><th>Số ảnh</th><th>Mục đích</th></tr></thead>
           <tbody>
             <tr><td>Train</td><td>2,941</td><td>Cập nhật tham số mô hình.</td></tr>
-            <tr><td>Validation</td><td>739</td><td>Theo dõi quá trình học và chọn checkpoint/cấu hình.</td></tr>
+            <tr class="validation-row"><td><b>Validation</b></td><td><b>739</b></td><td>Đánh giá sau mỗi epoch; chọn checkpoint và cấu hình theo validation loss thấp nhất.</td></tr>
             <tr><td>Test</td><td>3,669</td><td>Đánh giá cuối cho cấu hình đã chọn bằng validation.</td></tr>
           </tbody>
         </table>
       </div>
-      <div class="grid-2">
+      <div class="grid-2 dataset-figures">
         <figure>
           <img src="../bao_cao_hinh_anh/anh_mau_oxford_pet.png" alt="Ảnh mẫu các giống thú cưng trong Oxford-IIIT Pet">
           <figcaption>Một số lớp ảnh minh họa trong bộ dữ liệu.</figcaption>
@@ -170,12 +243,25 @@
           <figcaption>Phân bố ảnh theo ba tập dữ liệu.</figcaption>
         </figure>
       </div>
-      <p>Nhóm kiểm tra 37 thư mục lớp trong mỗi split và xác nhận danh sách lớp đồng nhất. Kiểm tra SHA-256 không phát hiện ảnh trùng byte-identical giữa các split; phương pháp này không phát hiện ảnh đã đổi định dạng/nén lại hoặc ảnh gần giống.</p>
+      <div class="callout"><b>Validation dùng để làm gì?</b> Mỗi epoch, chương trình đo loss và accuracy trên 739 ảnh trong thư mục <code>val</code>. Checkpoint được lưu khi validation loss giảm; early stopping theo dõi loss này, và sau các lần chạy chương trình chọn cấu hình có validation loss thấp nhất trong từng kiến trúc. Validation chỉ dùng để đánh giá, không cập nhật trọng số; test chỉ dùng đánh giá cấu hình đã chọn.</div>
+      <figure class="validation-figure">
+        <img src="../bao_cao_hinh_anh/so_sanh_validation_test.png" alt="Biểu đồ validation accuracy, validation loss của bốn cấu hình và test accuracy của các cấu hình được chọn">
+      </figure>
+      <p>Theo thông tin chuẩn bị dữ liệu được ghi nhận trong báo cáo, train/validation được tách phân tầng 80/20 từ trainval và test dùng split chính thức. Tuy nhiên, bước tạo split không có trong mã nguồn hiện tại nên không thể xác minh độc lập từ repo. Nhóm kiểm tra 37 thư mục lớp trong mỗi split và xác nhận danh sách lớp đồng nhất. Kiểm tra SHA-256 không phát hiện ảnh trùng byte-identical giữa các split; phương pháp này không phát hiện ảnh đã đổi định dạng/nén lại hoặc ảnh gần giống.</p>
       <div class="callout"><b>Vì sao tách ba tập?</b> Train dùng để học; validation dùng để chọn mô hình mà không sử dụng test; test chỉ dùng ở bước cuối để ước lượng khả năng dự đoán trên dữ liệu chưa dùng khi lựa chọn cấu hình.</div>
     </section>
 
-    <section id="tien-xu-ly">
-      <h2>3. Tiền xử lý và nạp ảnh</h2>
+    <section class="report-section" id="pham-vi">
+      <p class="proposal-label">06 / PHẠM VI</p>
+      <h2>Phạm vi</h2>
+      <p><b>Đã thực hiện:</b> hai mô hình pretrained (VGG16, DenseNet121), hai learning rate (0.01 và 0.001), batch size cố định 16; chọn cấu hình bằng validation và chỉ đánh giá test cho cấu hình được chọn.</p>
+      <p><b>Chưa thực hiện:</b> so sánh batch size 16 với 32, nhiều seed/k-fold, và triển khai ứng dụng hoặc API. Đây là các hướng mở rộng, không phải kết quả đã có.</p>
+    </section>
+
+    <section class="report-section" id="phuong-phap">
+      <p class="proposal-label">07 / PHƯƠNG PHÁP</p>
+      <h2>Phương pháp</h2>
+      <h3>Tiền xử lý và nạp ảnh</h3>
       <p>Pipeline trong <code>src/data_loader.py</code> chuyển ảnh về kích thước 224×224 và chuẩn hóa theo thống kê ImageNet. Augmentation ngẫu nhiên chỉ áp dụng ở train để tăng đa dạng ảnh; validation và test dùng phép biến đổi cố định để kết quả ổn định.</p>
       <div class="table-wrap">
         <table>
@@ -187,10 +273,8 @@
         </table>
       </div>
       <p>Chuẩn hóa từng kênh màu theo công thức <code>(x - mean) / std</code>, với mean = (0.485, 0.456, 0.406) và std = (0.229, 0.224, 0.225). Batch chuẩn có dạng <code>[16, 3, 224, 224]</code>; chiều cuối của nhãn tương ứng với một trong 37 lớp.</p>
-    </section>
 
-    <section id="mo-hinh">
-      <h2>4. Xây dựng mô hình học chuyển giao</h2>
+      <h3>Mô hình học chuyển giao</h3>
       <p>Trong bài thực hành này, nhóm tiến hành so sánh hai mô hình học chuyển giao là VGG16 và DenseNet121 trên bộ dữ liệu Oxford-IIIT Pet. Cả hai mô hình đều được khởi tạo từ các trọng số pretrained trên ImageNet, giúp tận dụng các đặc trưng đã học từ một tập dữ liệu lớn trước đó. Sau đó, lớp phân loại cuối được thay thế bằng đầu ra mới tương ứng với 37 nhãn của bộ dữ liệu Oxford-IIIT Pet.</p>
       <div class="table-wrap">
         <table>
@@ -208,10 +292,8 @@ self.backbone.classifier = nn.Linear(1024, num_classes)
 # hoặc với VGG16
 self.backbone = models.vgg16(weights="IMAGENET1K_V1")
 self.backbone.classifier[6] = nn.Linear(4096, num_classes)</code></pre>
-    </section>
 
-    <section id="huan-luyen">
-      <h2>5. Quy trình huấn luyện và chọn checkpoint</h2>
+      <h3>Huấn luyện và chọn checkpoint</h3>
       <div class="steps">
         <div class="step"><b>01 · Chuẩn bị</b><span>Đọc ảnh và nhãn thành batch, đưa lên thiết bị tính toán.</span></div>
         <div class="step"><b>02 · Dự đoán</b><span>Backbone trích xuất đặc trưng, classifier tạo 37 logits.</span></div>
@@ -225,50 +307,60 @@ loss = criterion(logits, labels)
 loss.backward()
 optimizer.step()</code></pre>
       <p class="note"><code>loss.backward()</code> tính gradient từ lỗi; <code>optimizer.step()</code> cập nhật trọng số. Khi validation/test, vòng lặp không có optimizer nên không cập nhật mô hình.</p>
-      <p>Chương trình giới hạn tối đa 5 epoch trong các lần chạy báo cáo và dùng early stopping với patience 3: dừng khi validation loss không cải thiện ba epoch liên tiếp. Phần ghi log được tách trong <code>src/tensorboard_logger.py</code>. TensorBoard lưu loss và accuracy của train (có augmentation), train-eval (transform cố định), validation, cùng learning rate và batch size; test chỉ được ghi cho cấu hình được chọn. CSV tổng hợp kết quả trong <code>outputs/reduced-experiments/results.csv</code>.</p>
+      <p>Chương trình giới hạn tối đa 5 epoch trong các lần chạy báo cáo và dùng early stopping với patience 3. Mã trong <code>src/tensorboard_logger.py</code> ghi loss/accuracy của train, train-eval và validation, cùng learning rate, batch size; test chỉ ghi cho cấu hình được chọn. Event log được tạo khi chạy thí nghiệm; hiện thư mục output chỉ có CSV tổng hợp tại <code>outputs/reduced-experiments/results.csv</code>.</p>
       <pre><code>python src/main.py --data-dir dataset --epochs 5 --patience 3 \
   --batch-size 16 --tune --output-dir outputs/reduced-experiments</code></pre>
       <p class="note">Lệnh trên cho phép chạy ma trận tuning theo cấu hình mặc định của chương trình. Kết quả được trình bày bên dưới chỉ gồm các lần chạy thực tế trong CSV; không suy diễn thành các cấu hình chưa chạy.</p>
-      <p>Để xem các đường cong sau khi chạy thí nghiệm, mở TensorBoard bằng lệnh:</p>
+      <p>Sau khi chạy thí nghiệm để tạo event log, mở TensorBoard bằng lệnh:</p>
       <pre><code>python -m tensorboard.main --logdir outputs/reduced-experiments</code></pre>
       <p class="note">Trong Scalars, có thể so sánh <code>Loss/train</code>, <code>Loss/train_eval</code>, <code>Loss/validation</code> và các tag <code>Accuracy/...</code>. Train-eval dùng transform cố định nên phù hợp hơn train có augmentation khi so sánh với validation.</p>
     </section>
 
-    <section id="ket-qua">
-      <h2>6. Kết quả thực nghiệm</h2>
-      <p>Thực nghiệm đã chạy hai kiến trúc với learning rate 0.01 và 0.001; batch size cố định 16. Chỉ các cấu hình tốt nhất theo validation mới được giữ lại để đánh giá trên test.</p>
+    <section class="report-section" id="san-pham">
+      <p class="proposal-label">08 / SẢN PHẨM</p>
+      <h2>Sản phẩm</h2>
+      <ul>
+        <li>Mã nguồn huấn luyện, đánh giá và tạo DataLoader trong thư mục <code>src/</code>.</li>
+        <li>Notebook và báo cáo HTML trong thư mục <code>notebooks/</code>.</li>
+        <li>CSV kết quả hiện có: <code>outputs/reduced-experiments/results.csv</code>.</li>
+        <li>Tích hợp ghi TensorBoard tại <code>src/tensorboard_logger.py</code>; event log sẽ được tạo khi chạy thí nghiệm, hiện chưa có trong thư mục output.</li>
+        <li>Biểu đồ và sơ đồ trong thư mục <code>bao_cao_hinh_anh/</code>.</li>
+      </ul>
+      <p>Project hiện là sản phẩm thực nghiệm và báo cáo; chưa có ứng dụng triển khai hoặc API dự đoán.</p>
+    </section>
+
+    <section class="summary result-summary" id="tom-tat">
+      <p class="proposal-label">TÓM TẮT KẾT QUẢ</p>
+      <h2>So sánh trên tập test</h2>
+      <p class="result-summary-intro">Mỗi mô hình dùng cấu hình được chọn theo validation loss; batch size đều là 16.</p>
+      <div class="summary-results">
+        <div class="summary-result"><span><strong>VGG16</strong><br>Learning rate 0.001</span><b>Accuracy&nbsp; 88.80%</b></div>
+        <div class="summary-result"><span><strong>DenseNet121</strong><br>Learning rate 0.001</span><b>Accuracy&nbsp; 91.31%</b></div>
+      </div>
+      <p class="summary-takeaway">Trong lần chạy hiện tại, DenseNet121 cao hơn VGG16 <b>2.51 điểm phần trăm</b>. Kết quả chỉ phản ánh split và cấu hình đã thử.</p>
+    </section>
+
+    <section class="report-section" id="danh-gia">
+      <p class="proposal-label">09 / ĐÁNH GIÁ</p>
+      <h2>Đánh giá</h2>
+      <p>Bốn cấu hình được chạy với batch size 16. Mỗi kiến trúc chọn learning rate có validation loss thấp nhất; chỉ cấu hình được chọn mới được đánh giá trên test.</p>
       <div class="table-wrap">
-        <table>
-          <thead><tr><th>Mô hình</th><th>LR</th><th>Batch</th><th>Epoch tốt nhất / đã chạy</th><th>Val loss</th><th>Val accuracy</th><th>Test accuracy</th></tr></thead>
+        <table class="results-table">
+          <thead><tr><th>Mô hình</th><th>Learning rate</th><th>Epoch tốt nhất / đã chạy</th><th>Validation loss ↓</th><th>Validation accuracy ↑</th><th>Test loss</th><th>Test accuracy</th></tr></thead>
           <tbody>
-            <tr><td>VGG16</td><td>0.001</td><td>16</td><td>4 / 5</td><td>0.2831</td><td>91.34%</td><td>88.80%</td></tr>
-            <tr><td>DenseNet121</td><td>0.001</td><td>16</td><td>4 / 5</td><td>0.2767</td><td>91.88%</td><td>91.31%</td></tr>
+            <tr class="selected-row"><td>VGG16</td><td>0.001</td><td>4 / 5</td><td>0.2831</td><td>91.34%</td><td>0.3450</td><td>88.80%</td></tr>
+            <tr class="selected-row"><td>DenseNet121</td><td>0.001</td><td>4 / 5</td><td>0.2767</td><td>91.88%</td><td>0.3236</td><td>91.31%</td></tr>
           </tbody>
         </table>
       </div>
-      <figure>
-        <img src="../bao_cao_hinh_anh/so_sanh_validation_test.png" alt="Biểu đồ so sánh validation accuracy, validation loss và test accuracy">
-        <figcaption>Biểu đồ lấy từ results.csv. Màu xanh lá đánh dấu cấu hình được chọn bằng validation; test chỉ hiển thị hai cấu hình đã chọn.</figcaption>
-      </figure>
-      <figure>
-        <img src="../bao_cao_hinh_anh/ket_qua_demo_1_epoch.png" alt="Kết quả demo DenseNet121 sau một epoch">
-        <figcaption>Ảnh demo DenseNet121 sau một epoch; không phải kết quả cuối của toàn bộ thí nghiệm.</figcaption>
-      </figure>
-    </section>
+      <p class="legend">Hai cấu hình trong bảng được chọn theo validation loss thấp nhất của từng mô hình.</p>
+      <div class="result-notes">
+        <div class="result-note"><b>Cách chọn</b><span>LR 0.001 có validation loss thấp hơn LR 0.01 ở cả hai mô hình.</span></div>
+        <div class="result-note"><b>Kết quả test</b><span>DenseNet121 có accuracy cao hơn VGG16 2.51 điểm phần trăm trong lần chạy này.</span></div>
+      </div>
+      <p class="note">Nguồn số liệu: <code>outputs/reduced-experiments/results.csv</code>. Test chỉ được dùng sau khi chọn cấu hình bằng validation.</p>
 
-    <section id="danh-gia">
-      <h2>7. Đánh giá và thảo luận</h2>
-      <ul>
-        <li><b>Learning rate:</b> LR 0.001 có validation loss thấp hơn LR 0.01 ở cả hai kiến trúc trong lần chạy này.</li>
-        <li><b>Kiến trúc:</b> DenseNet121 đạt test accuracy 91.31%, cao hơn VGG16 88.80% khoảng 2.51 điểm phần trăm; test loss lần lượt là 0.3236 và 0.3450.</li>
-        <li><b>Khả năng tổng quát hóa:</b> tại checkpoint tốt nhất, khoảng cách train-eval và validation accuracy xấp xỉ 4.07 điểm phần trăm với DenseNet121 và 3.80 điểm phần trăm với VGG16. Đây là dấu hiệu cần theo dõi, không đủ để khẳng định mô hình hoàn toàn không overfit.</li>
-        <li><b>Chọn checkpoint:</b> validation accuracy của hai mô hình đã chọn gần nhau (91.88% và 91.34%); test được dùng sau bước lựa chọn để so sánh cuối.</li>
-      </ul>
-      <div class="callout"><b>Diễn giải:</b> kết quả ủng hộ DenseNet121 cho cấu hình và split hiện tại. Cần nhiều seed hoặc k-fold trước khi khẳng định ưu thế ổn định trên các lần chia dữ liệu khác.</div>
-    </section>
-
-    <section id="han-che">
-      <h2>8. Hạn chế và hướng cải thiện</h2>
+      <h3>Giới hạn đánh giá và hướng mở rộng</h3>
       <ol>
         <li>Batch size cố định 16; chạy thêm batch size 32 để đánh giá ảnh hưởng của siêu tham số này.</li>
         <li>Kết quả dựa trên một seed và một split; bổ sung nhiều seed hoặc k-fold để ước lượng độ ổn định.</li>
@@ -278,14 +370,21 @@ optimizer.step()</code></pre>
       </ol>
     </section>
 
-    <section class="conclusion" id="ket-luan">
-      <h2>9. Kết luận</h2>
+    <section class="report-section" id="ke-hoach">
+      <p class="proposal-label">10 / KẾ HOẠCH</p>
+      <h2>Kế hoạch và rủi ro</h2>
+      <p>Các bước chuẩn bị/kiểm tra dữ liệu, chạy hai mô hình và đánh giá test đã có trong project; project không ghi lịch ngày cụ thể. Rủi ro thực tế gồm thời gian chạy trên CPU và kết quả có thể thay đổi theo split/seed. Giới hạn epoch và early stopping giúp khống chế thời gian; chọn bằng validation và chỉ dùng test sau khi chọn cấu hình để tránh dùng test làm tiêu chí lựa chọn.</p>
+      <p><b>Bảng phân công để nhóm cập nhật:</b></p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Thành viên</th><th>Nhiệm vụ</th><th>Mức độ hoàn thành</th></tr></thead>
+          <tbody><tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr></tbody>
+        </table>
+      </div>
+      <h3>Kết luận</h3>
       <p>Nhóm đã xây dựng pipeline phân loại 37 giống chó/mèo bằng transfer learning với VGG16 và DenseNet121. Quy trình gồm kiểm tra split dữ liệu, tiền xử lý ảnh, augmentation chỉ ở train, huấn luyện với CrossEntropyLoss và Adam, chọn checkpoint theo validation loss, sau đó đánh giá test.</p>
       <p>Trong các cấu hình thực nghiệm đã có, DenseNet121 với LR 0.001 và batch size 16 đạt test accuracy 91.31%, cao hơn VGG16. Kết luận được giới hạn trong lần thực nghiệm này; cần thêm batch size, seed và lần chạy để đánh giá độ ổn định.</p>
-    </section>
-
-    <section id="tai-lieu">
-      <h2>Mã nguồn và tài liệu tham khảo trong dự án</h2>
+      <h3>Mã nguồn và tài liệu tham khảo trong dự án</h3>
       <ul>
         <li><a href="../README.md">README — hướng dẫn tổng quan và cách chạy</a></li>
         <li><a href="../src/data_loader.py">data_loader.py — tiền xử lý ảnh và tạo DataLoader cho dữ liệu huấn luyện, validation và test</a></li>

@@ -19,7 +19,7 @@
 5. [Kết quả thực nghiệm](#5-kết-quả-thực-nghiệm)
 6. [Cấu trúc dự án](#6-cấu-trúc-dự-án)
 7. [Cài đặt và chạy](#7-cài-đặt-và-chạy)
-8. [Giới hạn và hướng tiếp tục](#8-giới-hạn-và-hướng-tiếp-tục)
+8. [Kế hoạch, phân công và giới hạn](#8-kế-hoạch-phân-công-và-giới-hạn)
 9. [Tài liệu liên quan](#9-tài-liệu-liên-quan)
 
 ## 1. Tổng quan
@@ -42,6 +42,14 @@ Trong cấu hình mặc định, backbone pretrained được đóng băng và c
 | Epoch tối đa | 5 |
 | Early stopping | Patience = 3 |
 | Loss / optimizer | CrossEntropyLoss / Adam |
+
+### Mục tiêu và đối tượng
+
+| Nội dung | Mô tả |
+|---|---|
+| Mục tiêu | So sánh VGG16 và DenseNet121 cho bài toán phân loại 37 giống chó/mèo. |
+| Người đọc/sử dụng | Sinh viên, giảng viên và người xem demo muốn tìm hiểu hoặc thử mô hình phân loại ảnh. |
+| Vấn đề | Nhận diện nhiều giống bằng mắt có thể khó; mô hình được dùng để tham khảo trong phạm vi học tập, không thay thế đánh giá của con người. |
 
 ## 2. Workflow của hệ thống
 
@@ -68,7 +76,7 @@ flowchart TD
 
 ### Các bước chính
 
-1. Kiểm tra cấu trúc lớp và tạo các split train, validation, test.
+1. Nạp các split `train`, `val`, `test` đã chuẩn bị; kiểm tra thư mục, ảnh và tính nhất quán của tên lớp.
 2. Augmentation ngẫu nhiên chỉ áp dụng cho ảnh train; validation và test dùng transform cố định.
 3. Khởi tạo từng backbone bằng trọng số ImageNet và thay classifier cuối theo số lớp.
 4. Huấn luyện, ghi loss/accuracy và lưu checkpoint khi validation loss giảm.
@@ -84,7 +92,11 @@ Oxford-IIIT Pet gồm 37 giống chó và mèo. Dữ liệu được tổ chức
 | Validation | 739 | Theo dõi quá trình học và chọn checkpoint/cấu hình |
 | Test | 3,669 | Đánh giá cuối cho cấu hình đã chọn |
 
-Train và validation được tách phân tầng từ split `trainval` theo tỷ lệ 80/20; test giữ nguyên split chính thức. Kiểm tra SHA-256 không phát hiện ảnh trùng byte-identical giữa các split. Cách kiểm tra này không phát hiện ảnh đã đổi định dạng/nén lại hoặc ảnh gần giống.
+Theo thông tin chuẩn bị dữ liệu được ghi nhận, train/validation được tách phân tầng 80/20 từ split `trainval`, còn test dùng split chính thức. Tuy nhiên, mã nguồn hiện tại chỉ nạp các thư mục split có sẵn, không tạo hoặc chia lại dữ liệu; do đó không thể xác minh độc lập cách chia này từ code. Kiểm tra SHA-256 không phát hiện ảnh trùng byte-identical giữa các split. Cách kiểm tra này không phát hiện ảnh đã đổi định dạng/nén lại hoặc ảnh gần giống.
+
+**Validation:** thư mục `val` có 739 ảnh. Sau mỗi epoch, chương trình tính loss và accuracy trên tập này; checkpoint được lưu khi validation loss giảm, và early stopping theo dõi validation loss. Trong tuning, mỗi kiến trúc chọn cấu hình có validation loss thấp nhất; validation chỉ dùng để đánh giá, không cập nhật trọng số. Test không tham gia chọn cấu hình và chỉ được đánh giá sau khi lựa chọn xong.
+
+Nguồn: [trang chính thức Oxford-IIIT Pet](https://www.robots.ox.ac.uk/~vgg/data/pets/). Dataset được cung cấp theo [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/); bản quyền ảnh vẫn thuộc các chủ sở hữu gốc.
 
 ![Phân bố số ảnh giữa train, validation và test](bao_cao_hinh_anh/phan_bo_dataset.png)
 
@@ -168,7 +180,7 @@ BAI_E2/
 │   └── test/               # Ảnh test theo thư mục lớp
 ├── docs/                   # Báo cáo, hướng dẫn và phân tích
 ├── notebooks/              # Notebook báo cáo và script kiểm tra dữ liệu
-├── outputs/                # Checkpoint, TensorBoard logs và CSV
+├── outputs/                # CSV kết quả; checkpoint/log được tạo khi chạy thí nghiệm
 ├── src/
 │   ├── data_loader.py      # Transform và tạo DataLoader
 │   ├── engine.py           # Vòng lặp train/evaluate và metrics
@@ -229,15 +241,35 @@ python src/main.py --help
 
 ### Xem log TensorBoard
 
-Mỗi cấu hình có thư mục log riêng bên trong `--output-dir`. Mã ghi log nằm trong [`src/tensorboard_logger.py`](src/tensorboard_logger.py); các metric gồm train có augmentation, train-eval với transform cố định, validation, learning rate, batch size và test của cấu hình được chọn.
+Mã ghi log nằm trong [`src/tensorboard_logger.py`](src/tensorboard_logger.py). Khi chạy thí nghiệm, mỗi cấu hình tạo event log riêng dưới thư mục `--output-dir`; log gồm loss/accuracy train, train-eval, validation, learning rate, batch size và test của cấu hình được chọn. Theo lệnh tái chạy ở trên, log sẽ nằm trong `outputs/reproduced`.
 
 ```powershell
-python -m tensorboard.main --logdir .\outputs\reduced-experiments
+python -m tensorboard.main --logdir .\outputs\reproduced
 ```
 
 Sau khi TensorBoard khởi động, mở địa chỉ local được in ra (thường là `http://localhost:6006`). Trong Scalars, xem `Loss/train`, `Loss/train_eval`, `Loss/validation` và các tag `Accuracy/...`; test chỉ được ghi cho cấu hình đã chọn bằng validation.
 
-## 8. Giới hạn và hướng tiếp tục
+Hiện tại `outputs/reduced-experiments` có CSV kết quả nhưng chưa có event log TensorBoard. Cần chạy thí nghiệm trước khi mở log trên TensorBoard.
+
+## 8. Kế hoạch, phân công và giới hạn
+
+### Tiến độ thực hiện
+
+| Công việc | Trạng thái |
+|---|---|
+| Chuẩn bị và kiểm tra dữ liệu | Hoàn thành |
+| Xây dựng, chạy và so sánh hai mô hình | Hoàn thành |
+| Đánh giá kết quả và hoàn thiện báo cáo | Hoàn thành |
+
+Repository không ghi mốc thời gian cụ thể; nhóm có thể cập nhật lịch theo yêu cầu môn học.
+
+### Phân công nhóm
+
+| Thành viên | Nhiệm vụ | Mức độ hoàn thành |
+|---|---|---|
+|  |  |  |
+
+### Giới hạn và hướng tiếp tục
 
 - Mỗi kiến trúc được chạy với một seed và một split; nên chạy thêm seed hoặc k-fold để đánh giá độ ổn định.
 - Batch size trong kết quả hiện tại chỉ là 16; chưa thể nhận xét ảnh hưởng của batch size 32.

@@ -1,0 +1,85 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="660" viewBox="0 0 1440 660" role="img" aria-labelledby="title description">
+  <title id="title">Quy trình thực nghiệm phân loại giống chó mèo</title>
+  <desc id="description">Sáu bước từ dữ liệu Oxford-IIIT Pet, chia tập, tiền xử lý, mô hình pretrained, huấn luyện, validation và đánh giá test; TensorBoard và CSV ghi lại kết quả.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#7890a8"/>
+    </marker>
+    <style>
+      .title { font: 700 34px Arial, sans-serif; fill: #173b61; }
+      .subtitle { font: 18px Arial, sans-serif; fill: #607184; }
+      .step { font: 700 17px Arial, sans-serif; fill: #16877b; }
+      .heading { font: 700 20px Arial, sans-serif; fill: #173b61; }
+      .body { font: 16px Arial, sans-serif; fill: #42566b; }
+      .small { font: 15px Arial, sans-serif; fill: #607184; }
+      .box { stroke: #d7e2ec; stroke-width: 2; rx: 18; }
+      .arrow { stroke: #7890a8; stroke-width: 3; fill: none; marker-end: url(#arrow); }
+    </style>
+  </defs>
+  <rect width="1440" height="660" rx="24" fill="#f3f7fb"/>
+  <text x="64" y="72" class="title">QUY TRÌNH THỰC NGHIỆM</text>
+  <text x="64" y="108" class="subtitle">Transfer Learning với VGG16 và DenseNet121 · Oxford-IIIT Pet · 37 lớp</text>
+
+  <g>
+    <rect x="64" y="164" width="190" height="246" class="box" fill="#e2efff"/>
+    <text x="88" y="204" class="step">01 · DỮ LIỆU</text>
+    <text x="88" y="248" class="heading">Oxford-IIIT Pet</text>
+    <text x="88" y="285" class="body">37 giống chó/mèo</text>
+    <text x="88" y="326" class="small">Train · 2.941 ảnh</text>
+    <text x="88" y="354" class="small">Validation · 739 ảnh</text>
+    <text x="88" y="382" class="small">Test · 3.669 ảnh</text>
+
+    <path d="M258 286 H282" class="arrow"/>
+    <rect x="292" y="164" width="190" height="246" class="box" fill="#e3f7ed"/>
+    <text x="316" y="204" class="step">02 · ĐẦU VÀO</text>
+    <text x="316" y="248" class="heading">ImageFolder</text>
+    <text x="316" y="292" class="body">Ảnh + nhãn lớp</text>
+    <text x="316" y="332" class="small">Kiểm tra tên lớp</text>
+    <text x="316" y="360" class="small">giữa các tập dữ liệu</text>
+
+    <path d="M486 286 H510" class="arrow"/>
+    <rect x="520" y="164" width="190" height="246" class="box" fill="#fff3cf"/>
+    <text x="544" y="204" class="step">03 · TIỀN XỬ LÝ</text>
+    <text x="544" y="248" class="heading">Ảnh 224 × 224</text>
+    <text x="544" y="292" class="body">Augmentation ở train</text>
+    <text x="544" y="332" class="small">Validation/test dùng</text>
+    <text x="544" y="360" class="small">biến đổi cố định</text>
+    <text x="544" y="388" class="small">Chuẩn hóa ImageNet</text>
+
+    <path d="M714 286 H738" class="arrow"/>
+    <rect x="748" y="164" width="190" height="246" class="box" fill="#eee9ff"/>
+    <text x="772" y="204" class="step">04 · MÔ HÌNH</text>
+    <text x="772" y="248" class="heading">VGG16</text>
+    <text x="772" y="280" class="body">hoặc DenseNet121</text>
+    <text x="772" y="326" class="small">Pretrained ImageNet</text>
+    <text x="772" y="354" class="small">Classifier 37 lớp</text>
+    <text x="772" y="382" class="small">Đóng băng backbone</text>
+
+    <path d="M942 286 H966" class="arrow"/>
+    <rect x="976" y="164" width="190" height="246" class="box" fill="#ffe7e8"/>
+    <text x="1000" y="204" class="step">05 · HUẤN LUYỆN</text>
+    <text x="1000" y="248" class="heading">CrossEntropy</text>
+    <text x="1000" y="280" class="body">+ Adam</text>
+    <text x="1000" y="326" class="small">Batch size 16</text>
+    <text x="1000" y="354" class="small">Learning rate</text>
+    <text x="1000" y="382" class="small">0.01 · 0.001</text>
+
+    <path d="M1170 286 H1194" class="arrow"/>
+    <rect x="1204" y="164" width="190" height="246" class="box" fill="#dff8fa"/>
+    <text x="1228" y="204" class="step">06 · ĐÁNH GIÁ</text>
+    <text x="1228" y="248" class="heading">Validation</text>
+    <text x="1228" y="286" class="small">Chọn checkpoint</text>
+    <text x="1228" y="314" class="small">theo val loss</text>
+    <text x="1228" y="354" class="small">Test cấu hình đã chọn</text>
+    <text x="1228" y="382" class="small">Báo cáo metrics</text>
+  </g>
+
+  <rect x="64" y="468" width="1330" height="112" rx="18" fill="#ffffff" stroke="#d7e2ec" stroke-width="2"/>
+  <text x="94" y="512" class="step">THEO DÕI &amp; LƯU KẾT QUẢ</text>
+  <text x="94" y="548" class="body">TensorBoard: loss / accuracy</text>
+  <line x1="488" y1="490" x2="488" y2="558" stroke="#d7e2ec" stroke-width="2"/>
+  <text x="530" y="548" class="body">Checkpoint: mô hình tốt nhất theo validation</text>
+  <line x1="1018" y1="490" x2="1018" y2="558" stroke="#d7e2ec" stroke-width="2"/>
+  <text x="1058" y="548" class="body">CSV: cấu hình và metrics</text>
+  <text x="64" y="620" class="small">Test chỉ được dùng sau khi chọn cấu hình bằng validation.</text>
+</svg>
