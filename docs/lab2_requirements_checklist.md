@@ -13,9 +13,10 @@ Tài liệu này chuyển các yêu cầu trong đề **“Practice 2 - Hands-on
 
 **Cách kiểm tra trong project này**
 
-- Mở `models.py`, kiểm tra hàm `build_model` hỗ trợ `vgg16` và `densenet121`.
+- Mở `src/models.py`, kiểm tra hàm `build_model` điều phối `vgg16` và `densenet121`.
+- Kiểm tra phần cài đặt riêng trong `src/vgg16_model.py` và `src/densenet121_model.py`.
 - Mở `outputs/reduced-experiments/results.csv`, kiểm tra có kết quả cho cả hai mô hình.
-- Mở mục “So sánh VGG16 và DenseNet121” trong `bao_cao_thuyet_trinh_thuc_hanh_2.md`.
+- Mở mục “So sánh VGG16 và DenseNet121” trong `lab2_presentation_report.md`.
 
 ## 2. Điều chỉnh siêu tham số
 
@@ -63,9 +64,9 @@ Trong TensorBoard, kiểm tra các tag như `Loss/train`, `Loss/train_eval`, `Lo
 
 **Cách kiểm tra trong project này**
 
-- Trong `models.py`, kiểm tra classifier của VGG16 và DenseNet121 được thay bằng đầu ra 37 lớp.
+- Trong `src/vgg16_model.py` và `src/densenet121_model.py`, kiểm tra classifier được thay bằng đầu ra 37 lớp.
 - Trong `main.py`, kiểm tra mô hình và số tham số được in khi bắt đầu mỗi cấu hình.
-- Xem `bao_cao_kiem_tra_du_lieu_va_mo_hinh.md` để đối chiếu số tham số tổng và tham số được huấn luyện.
+- Xem `data_model_validation.md` để đối chiếu số tham số tổng và tham số được huấn luyện.
 
 ## 5. Chuẩn bị dữ liệu
 

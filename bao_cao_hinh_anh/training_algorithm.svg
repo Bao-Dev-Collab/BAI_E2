@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="450" viewBox="0 0 1440 450" role="img" aria-labelledby="title desc">
+  <title id="title">Thuật toán huấn luyện và đánh giá mô hình</title>
+  <desc id="desc">Các batch train được đưa qua mô hình, tính loss và cập nhật bằng Adam; validation chọn checkpoint tốt nhất, early stopping dừng khi không cải thiện, rồi đánh giá test.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f5f8ff"/>
+      <stop offset="1" stop-color="#f1faf6"/>
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-15%" width="120%" height="140%">
+      <feDropShadow dx="0" dy="7" stdDeviation="9" flood-color="#17345b" flood-opacity=".10"/>
+    </filter>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M1 1 L11 6 L1 11 Z" fill="#91a2ba"/>
+    </marker>
+  </defs>
+  <rect width="1440" height="450" rx="28" fill="url(#bg)"/>
+  <circle cx="1360" cy="42" r="112" fill="#dce8ff" opacity=".38"/>
+  <text x="60" y="58" fill="#152744" font-family="Segoe UI, Arial, sans-serif" font-size="30" font-weight="700">Thuật toán huấn luyện và chọn mô hình</text>
+  <text x="60" y="91" fill="#61718a" font-family="Segoe UI, Arial, sans-serif" font-size="17">Validation theo dõi từng epoch; test chỉ dùng sau khi đã chọn cấu hình.</text>
+
+  <g filter="url(#shadow)">
+    <rect x="48" y="132" width="190" height="166" rx="20" fill="#ffffff" stroke="#dbe4ef"/>
+    <rect x="268" y="132" width="190" height="166" rx="20" fill="#ffffff" stroke="#dbe4ef"/>
+    <rect x="488" y="132" width="190" height="166" rx="20" fill="#ffffff" stroke="#dbe4ef"/>
+    <rect x="708" y="132" width="190" height="166" rx="20" fill="#ffffff" stroke="#dbe4ef"/>
+    <rect x="928" y="132" width="190" height="166" rx="20" fill="#ffffff" stroke="#dbe4ef"/>
+    <rect x="1148" y="132" width="244" height="166" rx="20" fill="#ffffff" stroke="#dbe4ef"/>
+  </g>
+
+  <g fill="none" stroke="#91a2ba" stroke-width="3" marker-end="url(#arrow)">
+    <line x1="241" y1="215" x2="261" y2="215"/>
+    <line x1="461" y1="215" x2="481" y2="215"/>
+    <line x1="681" y1="215" x2="701" y2="215"/>
+    <line x1="901" y1="215" x2="921" y2="215"/>
+    <line x1="1121" y1="215" x2="1141" y2="215"/>
+  </g>
+
+  <g font-family="Segoe UI, Arial, sans-serif">
+    <circle cx="78" cy="161" r="16" fill="#e9efff"/><text x="78" y="167" text-anchor="middle" fill="#405fca" font-size="15" font-weight="700">1</text>
+    <text x="68" y="205" fill="#263954" font-size="18" font-weight="700">Batch train</text>
+    <text x="68" y="235" fill="#697990" font-size="14">Ảnh và nhãn</text>
+    <text x="68" y="257" fill="#697990" font-size="14">được nạp theo batch</text>
+    <text x="68" y="279" fill="#697990" font-size="14">có augmentation</text>
+
+    <circle cx="298" cy="161" r="16" fill="#e9efff"/><text x="298" y="167" text-anchor="middle" fill="#405fca" font-size="15" font-weight="700">2</text>
+    <text x="288" y="205" fill="#263954" font-size="18" font-weight="700">Forward pass</text>
+    <text x="288" y="235" fill="#697990" font-size="14">Backbone trích xuất</text>
+    <text x="288" y="257" fill="#697990" font-size="14">đặc trưng; classifier</text>
+    <text x="288" y="279" fill="#697990" font-size="14">tạo 37 logits</text>
+
+    <circle cx="518" cy="161" r="16" fill="#e6f6f1"/><text x="518" y="167" text-anchor="middle" fill="#087e70" font-size="15" font-weight="700">3</text>
+    <text x="508" y="205" fill="#263954" font-size="18" font-weight="700">Tính loss</text>
+    <text x="508" y="235" fill="#697990" font-size="14">CrossEntropyLoss</text>
+    <text x="508" y="257" fill="#697990" font-size="14">backpropagation</text>
+    <text x="508" y="279" fill="#697990" font-size="14">và Adam cập nhật</text>
+
+    <circle cx="738" cy="161" r="16" fill="#fff3df"/><text x="738" y="167" text-anchor="middle" fill="#b7791f" font-size="15" font-weight="700">4</text>
+    <text x="728" y="205" fill="#263954" font-size="18" font-weight="700">Validation</text>
+    <text x="728" y="235" fill="#697990" font-size="14">Đo loss/accuracy</text>
+    <text x="728" y="257" fill="#697990" font-size="14">sau mỗi epoch</text>
+    <text x="728" y="279" fill="#697990" font-size="14">không cập nhật weight</text>
+
+    <circle cx="958" cy="161" r="16" fill="#e6f6f1"/><text x="958" y="167" text-anchor="middle" fill="#087e70" font-size="15" font-weight="700">5</text>
+    <text x="948" y="205" fill="#263954" font-size="18" font-weight="700">Checkpoint</text>
+    <text x="948" y="235" fill="#697990" font-size="14">Lưu nếu val loss</text>
+    <text x="948" y="257" fill="#697990" font-size="14">giảm; dừng sớm sau</text>
+    <text x="948" y="279" fill="#697990" font-size="14">3 epoch không cải thiện</text>
+
+    <circle cx="1178" cy="161" r="16" fill="#e9efff"/><text x="1178" y="167" text-anchor="middle" fill="#405fca" font-size="15" font-weight="700">6</text>
+    <text x="1168" y="205" fill="#263954" font-size="18" font-weight="700">Chọn và đánh giá</text>
+    <text x="1168" y="235" fill="#697990" font-size="14">Chọn cấu hình theo</text>
+    <text x="1168" y="257" fill="#697990" font-size="14">validation, sau đó đo</text>
+    <text x="1168" y="279" fill="#697990" font-size="14">test trên checkpoint đó</text>
+  </g>
+
+  <path d="M803 313 C803 354 140 354 140 313" fill="none" stroke="#b8c5d6" stroke-width="2" stroke-dasharray="7 7" marker-end="url(#arrow)"/>
+  <rect x="330" y="350" width="780" height="58" rx="18" fill="#ffffff" stroke="#dce5ef"/>
+  <text x="720" y="386" text-anchor="middle" fill="#53647b" font-family="Segoe UI, Arial, sans-serif" font-size="16">
+    Lặp các bước train → validation qua từng epoch · theo dõi metric bằng TensorBoard · tổng hợp kết quả vào CSV
+  </text>
+</svg>

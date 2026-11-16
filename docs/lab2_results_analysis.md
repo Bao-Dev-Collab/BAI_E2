@@ -9,7 +9,7 @@ Bài thực hành dùng **transfer learning**: khởi đầu từ VGG16 hoặc D
 - Ảnh hưởng của batch size `16` so với `32`.
 - Loss và accuracy theo epoch trên train/validation; kết quả cuối trên test.
 
-Đã chạy 4 cấu hình trong `outputs/reduced-experiments/results.csv`: hai mô hình × hai learning rate, batch size giữ cố định 16. Vì vậy đã so sánh kiến trúc và learning rate, nhưng **chưa so sánh batch size 16 với 32**. Mã nguồn triển khai nằm trong `data_loader.py`, `models.py`, `engine.py`, `main.py`. Chương trình ghi biểu đồ TensorBoard, checkpoint có validation loss thấp nhất, dùng early stopping (mặc định patience 3), và CSV kết quả trong thư mục do `--output-dir` chỉ định.
+Đã chạy 4 cấu hình trong `outputs/reduced-experiments/results.csv`: hai mô hình × hai learning rate, batch size giữ cố định 16. Vì vậy đã so sánh kiến trúc và learning rate, nhưng **chưa so sánh batch size 16 với 32**. Mã nguồn gồm `data_loader.py`, `models.py` (điều phối model), `vgg16_model.py`, `densenet121_model.py`, `engine.py` và `main.py`. Chương trình ghi biểu đồ TensorBoard, checkpoint có validation loss thấp nhất, dùng early stopping (mặc định patience 3), và CSV kết quả trong thư mục do `--output-dir` chỉ định.
 
 ## 2. Vì sao cách làm này tạo ra kết quả
 
@@ -130,8 +130,8 @@ thấp+------------ epoch         thấp+------------ epoch
 | Người | Phần phụ trách | Tệp/đầu ra cần bàn giao | Phụ thuộc và kiểm tra |
 | --- | --- | --- | --- |
 | **1 – Data Engineer** | Cài môi trường, thống nhất cấu trúc dataset, transforms và DataLoader train/val/test. | `requirements.txt`, `data_loader.py`, cấu trúc dataset đã thống nhất. | Xác nhận số lớp, tên thư mục lớp khớp giữa ba split; chạy thử một batch có shape `[N, 3, 224, 224]`. |
-| **2 – Model Architect VGG** | Trọng số VGG16 pretrained, thay classifier, freeze backbone và tùy chọn mở khối cuối. | Phần `vgg16` trong `models.py`, số tham số trainable và kiến trúc in ra. | Thử forward một batch; output phải có shape `[N, số_lớp]`. |
-| **3 – Model Architect DenseNet** | Trọng số DenseNet121 pretrained, thay classifier, freeze backbone và tùy chọn mở denseblock cuối. | Phần `densenet121` trong `models.py`, số tham số trainable và kiến trúc in ra. | Cùng giao diện và shape output với VGG để thay model không cần sửa engine. |
+| **2 – Model Architect VGG** | Trọng số VGG16 pretrained, thay classifier, freeze backbone và tùy chọn mở khối cuối. | `src/vgg16_model.py`, số tham số trainable và kiến trúc in ra. | Thử forward một batch; output phải có shape `[N, số_lớp]`. |
+| **3 – Model Architect DenseNet** | Trọng số DenseNet121 pretrained, thay classifier, freeze backbone và tùy chọn mở denseblock cuối. | `src/densenet121_model.py`, số tham số trainable và kiến trúc in ra. | Cùng giao diện và shape output với VGG để thay model không cần sửa engine. |
 | **4 – Trainer & Evaluator** | CrossEntropyLoss, Adam, train/evaluate, accuracy và chọn checkpoint theo validation. | `engine.py` và phần train/evaluate trong `main.py`. | Loss tính theo số mẫu; đánh giá không cập nhật gradient; test chỉ chạy sau khi chọn checkpoint. |
 | **5 – MLOps & Hyperparameter** | Ghi TensorBoard, chạy tuning và tổng hợp bảng. | Logging trong `main.py`, các event TensorBoard và CSV trong thư mục output. | Đã chạy 4 cấu hình (mỗi model × hai LR, batch size 16); chưa đối chiếu batch size 16 với 32. |
 | **6 – Team Leader & Reporter** | Ghép pipeline, chạy thí nghiệm, tổng hợp so sánh kiến trúc/siêu tham số và thuyết trình. | `main.py`, checkpoint, CSV, ảnh chụp TensorBoard và báo cáo cuối. | Ghi cấu hình, thiết bị, số epoch và số liệu thực; không coi số minh họa trong tài liệu là kết quả thật. |

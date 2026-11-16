@@ -171,7 +171,7 @@ Lần đầu khởi tạo, torchvision có thể tải file trọng số ImageNe
 
 `in_features=1024` là số đặc trưng DenseNet đưa ra trước classifier; `out_features=37` là số lớp của bài toán.
 
-Đoạn khởi tạo và thay đầu ra trong [`models.py`](./models.py):
+Đoạn khởi tạo và thay đầu ra trong [`src/densenet121_model.py`](../src/densenet121_model.py):
 
 ```python
 model = models.densenet121(

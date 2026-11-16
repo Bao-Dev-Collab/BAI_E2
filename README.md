@@ -1,56 +1,232 @@
-# Lab 2 – Transfer Learning
+# Transfer Learning for Pet Breed Classification
 
-Practice 2 · Chương 3: Convolutional Neural Networks & Transfer Learning
+### Thực hành 2 · CNN & Transfer Learning · Nhóm 10
 
-## 1. Giới thiệu
+> **Bài toán:** phân loại ảnh thành 37 giống chó và mèo  
+> **Dữ liệu:** Oxford-IIIT Pet · **Mô hình:** VGG16 và DenseNet121  
+> **Kết quả tốt nhất trong các cấu hình đã chạy:** DenseNet121 đạt **91.31% test accuracy**
 
-- **Mục tiêu:** Áp dụng kỹ thuật Học chuyển giao (Transfer Learning) từ các mô hình đã tiền huấn luyện trên ImageNet (**VGG16** và **DenseNet121**) để giải quyết bài toán phân loại đa lớp (37 giống chó/mèo) trên bộ dữ liệu thực tế thay vì huấn luyện mạng từ đầu.
-- **Nội dung thực hiện:**
-  - Kiểm tra tính toàn vẹn của dữ liệu, phát hiện và loại bỏ rò rỉ dữ liệu (Data Leakage) giữa các tập Train / Validation / Test.
-  - Chuẩn hóa ảnh (`224×224` theo phân phối ImageNet) và áp dụng Data Augmentation cho tập huấn luyện; sử dụng phép biến đổi cố định cho Validation/Test.
-  - Huấn luyện và đánh giá 4 cấu hình thực nghiệm kết hợp 2 kiến trúc (**VGG16**, **DenseNet121**) và 2 mức Learning Rate (`0.01`, `0.001`) với Batch size `16`, tối đa `5 epochs` và Early Stopping (`patience=3`).
+![Một số ảnh thuộc bộ dữ liệu Oxford-IIIT Pet](bao_cao_hinh_anh/anh_mau_oxford_pet.png)
 
-Chi tiết yêu cầu bài thực hành: [docs/huong_dan_kiem_tra_yeu_cau_bai_thuc_hanh_2.md](docs/huong_dan_kiem_tra_yeu_cau_bai_thuc_hanh_2.md). **Báo cáo phân tích đầy đủ:** [docs/ket_qua_phan_tich_thuc_hanh_2.md](docs/ket_qua_phan_tich_thuc_hanh_2.md).
+---
 
-**Kết quả chính** (trên tập kiểm thử Oxford-IIIT Pet với cấu hình tốt nhất `LR = 0.001`, `Batch size = 16`):
+## Mục lục
 
-| Model | Backbone | Best Learning Rate | Test Accuracy | Ghi chú |
-| :--- | :--- | :---: | :---: | :--- |
-| **Model 1** | VGG16 (Pre-trained ImageNet) | `0.001` | **88.80%** | Đóng băng backbone, huấn luyện classifier mới |
-| **Model 2** | DenseNet121 (Pre-trained ImageNet) | `0.001` | **91.31%** | Đạt độ chính xác cao nhất nhờ kết nối dày đặc Dense Blocks |
+1. [Tổng quan](#1-tổng-quan)
+2. [Workflow của hệ thống](#2-workflow-của-hệ-thống)
+3. [Dữ liệu và tiền xử lý](#3-dữ-liệu-và-tiền-xử-lý)
+4. [Mô hình và thuật toán](#4-mô-hình-và-thuật-toán)
+5. [Kết quả thực nghiệm](#5-kết-quả-thực-nghiệm)
+6. [Cấu trúc dự án](#6-cấu-trúc-dự-án)
+7. [Cài đặt và chạy](#7-cài-đặt-và-chạy)
+8. [Giới hạn và hướng tiếp tục](#8-giới-hạn-và-hướng-tiếp-tục)
+9. [Tài liệu liên quan](#9-tài-liệu-liên-quan)
 
-*(Chi tiết log và số liệu từng cấu hình lưu tại `outputs/reduced-experiments/results.csv`).*
+## 1. Tổng quan
 
-## 2. Dữ liệu và mô hình
+Dự án áp dụng **transfer learning** để nhận dạng giống thú cưng. Thay vì khởi tạo một mạng mới và học tất cả tham số từ đầu, nhóm dùng các mô hình đã được huấn luyện trên ImageNet, thay lớp phân loại cuối thành 37 lớp, rồi huấn luyện trên Oxford-IIIT Pet.
 
-- **Dataset:** **Oxford-IIIT Pet** gồm 37 giống chó và mèo (7.349 ảnh), được tổ chức theo chuẩn `ImageFolder`:
-  - `train/`: **2.941 ảnh** (tách phân tầng 80% từ split `trainval` gốc).
-  - `val/`: **739 ảnh** (tách phân tầng 20% từ split `trainval` gốc).
-  - `test/`: **3.669 ảnh** (giữ nguyên split `test` chính thức để đánh giá cuối cùng).
-  - Chi tiết kiểm tra dữ liệu: [docs/bao_cao_kiem_tra_du_lieu_va_mo_hinh.md](docs/bao_cao_kiem_tra_du_lieu_va_mo_hinh.md).
-- **Kiến trúc 1 (`VGG16`):** Đóng băng các tầng tích chập trích xuất đặc trưng từ ImageNet, thay thế lớp phân loại cuối cho 37 lớp (hỗ trợ tùy chọn `--fine-tune-last-block`).
-- **Kiến trúc 2 (`DenseNet121`):** Tận dụng các khối kết nối dày đặc (Dense Blocks) với trọng số ImageNet giúp tối ưu luồng gradient và giảm số lượng tham số.
+Hai kiến trúc được đưa vào so sánh:
 
-## 3. Cấu trúc thư mục
+- **VGG16:** các tầng tích chập xếp tuần tự, cấu trúc dễ theo dõi.
+- **DenseNet121:** các dense block truyền và tái sử dụng đặc trưng giữa nhiều tầng.
+
+Trong cấu hình mặc định, backbone pretrained được đóng băng và chỉ classifier mới được cập nhật. Validation được dùng để chọn checkpoint; tập test chỉ được dùng để đánh giá sau khi đã chọn cấu hình.
+
+| Hạng mục | Thiết lập |
+| --- | --- |
+| Số lớp | 37 giống chó và mèo |
+| Backbone | VGG16, DenseNet121 pretrained trên ImageNet |
+| Learning rate đã chạy | 0.01 và 0.001 |
+| Batch size trong kết quả hiện tại | 16 |
+| Epoch tối đa | 5 |
+| Early stopping | Patience = 3 |
+| Loss / optimizer | CrossEntropyLoss / Adam |
+
+## 2. Workflow của hệ thống
+
+Sơ đồ dưới đây tóm tắt cách dữ liệu đi qua pipeline, từ lúc kiểm tra split đến khi báo cáo kết quả.
+
+```mermaid
+flowchart TD
+    A["Oxford-IIIT Pet<br/>37 lớp"] --> B["Kiểm tra dữ liệu<br/>thư mục lớp, split, ảnh trùng"]
+    B --> C["Train / Validation / Test"]
+    C --> D["Tiền xử lý ảnh<br/>224×224 · ImageNet normalization"]
+    D --> E{"Chọn backbone"}
+    E --> F["VGG16<br/>ImageNet pretrained"]
+    E --> G["DenseNet121<br/>ImageNet pretrained"]
+    F --> H["Thay classifier<br/>đầu ra 37 lớp"]
+    G --> H
+    H --> I["Huấn luyện<br/>CrossEntropyLoss + Adam"]
+    I --> J["Đánh giá validation<br/>mỗi epoch"]
+    J --> K["Lưu checkpoint tốt nhất<br/>theo validation loss"]
+    K --> L["Chọn cấu hình<br/>bằng validation"]
+    L --> M["Đánh giá test<br/>cho cấu hình được chọn"]
+    I --> N["TensorBoard"]
+    M --> O["CSV, biểu đồ và báo cáo"]
+```
+
+### Các bước chính
+
+1. Kiểm tra cấu trúc lớp và tạo các split train, validation, test.
+2. Augmentation ngẫu nhiên chỉ áp dụng cho ảnh train; validation và test dùng transform cố định.
+3. Khởi tạo từng backbone bằng trọng số ImageNet và thay classifier cuối theo số lớp.
+4. Huấn luyện, ghi loss/accuracy và lưu checkpoint khi validation loss giảm.
+5. Chọn cấu hình bằng validation, sau đó đánh giá cấu hình được chọn trên test.
+
+## 3. Dữ liệu và tiền xử lý
+
+Oxford-IIIT Pet gồm 37 giống chó và mèo. Dữ liệu được tổ chức theo định dạng `ImageFolder`: mỗi thư mục con tương ứng với một lớp.
+
+| Split | Số ảnh | Cách sử dụng |
+| --- | ---: | --- |
+| Train | 2,941 | Cập nhật tham số mô hình |
+| Validation | 739 | Theo dõi quá trình học và chọn checkpoint/cấu hình |
+| Test | 3,669 | Đánh giá cuối cho cấu hình đã chọn |
+
+Train và validation được tách phân tầng từ split `trainval` theo tỷ lệ 80/20; test giữ nguyên split chính thức. Kiểm tra SHA-256 không phát hiện ảnh trùng byte-identical giữa các split. Cách kiểm tra này không phát hiện ảnh đã đổi định dạng/nén lại hoặc ảnh gần giống.
+
+![Phân bố số ảnh giữa train, validation và test](bao_cao_hinh_anh/phan_bo_dataset.png)
+
+### Tiền xử lý ảnh
+
+Ảnh được resize về 256, sau đó crop về 224×224. Ảnh train sử dụng `RandomResizedCrop` và `RandomHorizontalFlip`; validation/test dùng `CenterCrop` để phép đánh giá ổn định. Tất cả được chuẩn hóa theo thống kê ImageNet:
+
+```text
+mean = (0.485, 0.456, 0.406)
+std  = (0.229, 0.224, 0.225)
+```
+
+Các transform và DataLoader được định nghĩa trong [`src/data_loader.py`](src/data_loader.py).
+
+## 4. Mô hình và thuật toán
+
+### Transfer learning
+
+Ảnh đầu vào đi qua backbone để tạo đặc trưng. Classifier cuối chuyển đặc trưng thành 37 logits, tương ứng với điểm dự đoán cho từng giống. Trong lúc train, CrossEntropyLoss đo sai khác giữa dự đoán và nhãn thật; Adam cập nhật các tham số đang được mở train.
+
+Với cấu hình mặc định, các tầng trích xuất đặc trưng pretrained bị đóng băng để hạn chế số tham số cần cập nhật. Tùy chọn `--fine-tune-last-block` có thể mở thêm khối đặc trưng cuối, nhưng không được dùng trong các kết quả bên dưới.
+
+### So sánh hai backbone
+
+| Mô hình | Cách trích xuất đặc trưng | Trainable / tổng tham số |
+| --- | --- | ---: |
+| VGG16 | Các tầng tích chập nối tiếp; classifier cuối được thay cho 37 lớp | 151,589 / 134,412,133 |
+| DenseNet121 | Dense block truyền và tái sử dụng đặc trưng giữa các tầng | 37,925 / 6,991,781 |
+
+Số tham số là số đo theo cấu hình model hiện tại; số lượng thấp hơn không tự động có nghĩa là chạy nhanh hơn. Dự án chưa đo thời gian và bộ nhớ đối chứng giữa hai mô hình.
+
+Chi tiết code và giải thích được trình bày trong [`docs/model_analysis.md`](docs/model_analysis.md).
+
+### Sơ đồ luồng qua hai mô hình
+
+![Sơ đồ luồng xử lý ảnh qua VGG16 và DenseNet121](bao_cao_hinh_anh/model_architectures.svg)
+
+### Thuật toán huấn luyện
+
+![Sơ đồ thuật toán train, validation, chọn checkpoint và test](bao_cao_hinh_anh/training_algorithm.svg)
+
+## 5. Kết quả thực nghiệm
+
+Bốn cấu hình đã chạy gồm hai kiến trúc × hai learning rate (`0.01`, `0.001`); batch size giữ cố định ở 16. Mỗi kiến trúc được chọn cấu hình theo validation loss thấp nhất, rồi mới đánh giá trên test.
+
+| Mô hình được chọn | Learning rate | Batch size | Epoch tốt nhất / đã chạy | Validation loss | Validation accuracy | Test loss | Test accuracy |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| VGG16 | 0.001 | 16 | 4 / 5 | 0.2831 | 91.34% | 0.3450 | 88.80% |
+| DenseNet121 | 0.001 | 16 | 4 / 5 | 0.2767 | 91.88% | 0.3236 | 91.31% |
+
+![So sánh kết quả validation và test](bao_cao_hinh_anh/so_sanh_validation_test.png)
+
+DenseNet121 cao hơn VGG16 **2.51 điểm phần trăm** về test accuracy trong lần chạy này. Kết quả chỉ phản ánh split và cấu hình hiện tại; chưa đủ để kết luận mô hình nào luôn tốt hơn trên các lần chia dữ liệu khác.
+
+> Chỉ các cấu hình được chọn theo validation mới có test metrics trong bảng. Các cấu hình còn lại không được đánh giá trên test để tránh dùng tập test làm tiêu chí chọn mô hình.
+
+Kết quả gốc được lưu tại [`outputs/reduced-experiments/results.csv`](outputs/reduced-experiments/results.csv).
+
+## 6. Cấu trúc dự án
 
 ```text
 BAI_E2/
-├── bao_cao_hinh_anh/                     # Biểu đồ trực quan hóa Loss/Accuracy phục vụ báo cáo
-├── docs/                                 # Tài liệu kỹ thuật, tóm tắt lý thuyết và báo cáo phân tích
-│   ├── bao_cao_kiem_tra_du_lieu_va_mo_hinh.md
-│   ├── bao_cao_thuyet_trinh_thuc_hanh_2.md
-│   ├── huong_dan_kiem_tra_yeu_cau_bai_thuc_hanh_2.md
-│   ├── ket_qua_phan_tich_thuc_hanh_2.md
-│   └── file tóm tắt chương 3 để làm bài E2.md
-├── notebooks/                            # Script kiểm tra dữ liệu và thử nghiệm phụ trợ
-│   └── check_dataset_duplicates.py       # Kiểm tra rò rỉ dữ liệu (Data Leakage) và ảnh trùng lặp
-├── outputs/                              # Lưu trữ log TensorBoard, checkpoint và CSV kết quả
-│   └── reduced-experiments/              # Kết quả thực nghiệm 4 cấu hình (results.csv)
-├── src/                                  # Mã nguồn chính của hệ thống
-│   ├── main.py                           # Điểm khởi chạy chính điều phối huấn luyện, tuning & đánh giá
-│   ├── models.py                         # Định nghĩa kiến trúc VGG16, DenseNet121 và Classifier
-│   ├── data_loader.py                    # Tiền xử lý, Data Augmentation và tạo DataLoader
-│   └── engine.py                         # Vòng lặp huấn luyện (Training loop), Validation và tính metrics
-├── .gitignore                            # Loại trừ thư mục dataset nặng, .venv và file tạm
-├── requirements.txt                      # Danh sách thư viện (PyTorch, torchvision, TensorBoard...)
-└── README.md                             # Tài liệu tổng quan và hướng dẫn sử dụng
+├── bao_cao_hinh_anh/       # Ảnh mẫu, sơ đồ pipeline và biểu đồ kết quả
+├── dataset/
+│   ├── _oxford_raw/        # Dữ liệu Oxford-IIIT Pet gốc
+│   ├── train/              # Ảnh train theo thư mục lớp
+│   ├── val/                # Ảnh validation theo thư mục lớp
+│   └── test/               # Ảnh test theo thư mục lớp
+├── docs/                   # Báo cáo, hướng dẫn và phân tích
+├── notebooks/              # Notebook báo cáo và script kiểm tra dữ liệu
+├── outputs/                # Checkpoint, TensorBoard logs và CSV
+├── src/
+│   ├── data_loader.py      # Transform và tạo DataLoader
+│   ├── engine.py           # Vòng lặp train/evaluate và metrics
+│   ├── main.py             # Chạy thí nghiệm, tuning và lưu kết quả
+│   ├── models.py           # Giữ API build_model/count_parameters dùng chung
+│   ├── vgg16_model.py      # Triển khai riêng mô hình VGG16
+│   └── densenet121_model.py # Triển khai riêng mô hình DenseNet121
+├── requirements.txt
+└── README.md
+```
+
+| Tệp | Vai trò |
+| --- | --- |
+| `src/data_loader.py` | Đọc ảnh, augmentation và tạo DataLoader |
+| `src/models.py` | Điều phối `build_model()` và đếm tham số; giữ tương thích với `main.py` |
+| `src/vgg16_model.py` | Khởi tạo VGG16, thay classifier và thiết lập fine-tuning |
+| `src/densenet121_model.py` | Khởi tạo DenseNet121, thay classifier và thiết lập fine-tuning |
+| `src/engine.py` | Train một epoch và tính loss/accuracy |
+| `src/main.py` | Điều phối cấu hình, chọn checkpoint và đánh giá |
+| `notebooks/bao_cao_thuc_hanh_2_transfer_learning.ipynb` | Báo cáo dạng notebook |
+
+## 7. Cài đặt và chạy
+
+Các lệnh sau chạy từ thư mục gốc của repository.
+
+### Tạo môi trường và cài thư viện
+
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install -r requirements.txt
+```
+
+### Chạy lại bốn cấu hình dùng trong báo cáo
+
+Lệnh dưới đây chạy VGG16 và DenseNet121 với learning rate 0.01/0.001, batch size 16, tối đa 5 epoch. Kết quả được lưu vào thư mục mới để không ghi đè CSV/checkpoint hiện có.
+
+```powershell
+python src/main.py `
+  --data-dir dataset `
+  --epochs 5 `
+  --patience 3 `
+  --batch-size 16 `
+  --tune `
+  --learning-rates 0.01 0.001 `
+  --batch-sizes 16 `
+  --seed 42 `
+  --output-dir outputs/reproduced
+```
+
+Để xem các tùy chọn khác:
+
+```powershell
+python src/main.py --help
+```
+
+## 8. Giới hạn và hướng tiếp tục
+
+- Mỗi kiến trúc được chạy với một seed và một split; nên chạy thêm seed hoặc k-fold để đánh giá độ ổn định.
+- Batch size trong kết quả hiện tại chỉ là 16; chưa thể nhận xét ảnh hưởng của batch size 32.
+- Thí nghiệm giới hạn tối đa 5 epoch và được chạy trên CPU; cần thêm phép đo thời gian/tài nguyên khi so sánh hiệu năng triển khai.
+- SHA-256 chỉ phát hiện ảnh trùng byte-identical; có thể bổ sung perceptual hash để tìm ảnh gần giống.
+- Có thể bổ sung confusion matrix và precision/recall theo lớp để xem giống nào thường bị nhầm.
+
+## 9. Tài liệu liên quan
+
+- [Báo cáo HTML](notebooks/bao_cao_thuc_hanh_2_transfer_learning.html)
+- [Notebook báo cáo](notebooks/bao_cao_thuc_hanh_2_transfer_learning.ipynb)
+- [Phân tích mô hình](docs/model_analysis.md)
+- [Workflow preview](docs/workflow_preview.md)
+- [Báo cáo kiểm tra dữ liệu và mô hình](docs/data_model_validation.md)
+- [Kết quả phân tích thực hành](docs/lab2_results_analysis.md)
+- [Hướng dẫn kiểm tra yêu cầu](docs/lab2_requirements_checklist.md)
+- [Báo cáo thuyết trình](docs/lab2_presentation_report.md)

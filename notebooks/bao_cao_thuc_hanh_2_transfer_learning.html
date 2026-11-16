@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Báo cáo Thực hành 2: Transfer Learning với VGG16 và DenseNet121 trên Oxford-IIIT Pet.">
+  <title>Báo cáo Thực hành 2 | Transfer Learning</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #1d2b3a;
+      --muted: #607184;
+      --navy: #173b61;
+      --blue: #3977b8;
+      --teal: #16877b;
+      --pale: #f3f7fb;
+      --line: #dce5ee;
+      --green: #2e8b57;
+      --shadow: 0 12px 32px rgba(27, 55, 82, .08);
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--pale);
+      color: var(--ink);
+      font: 16px/1.72 "Segoe UI", "Noto Sans", Arial, sans-serif;
+    }
+    a { color: var(--blue); }
+    .hero {
+      padding: 66px 24px 58px;
+      color: #fff;
+      background: linear-gradient(125deg, #153756, #23698a 68%, #16877b);
+    }
+    .hero-inner, main, footer { width: min(1060px, calc(100% - 36px)); margin: 0 auto; }
+    .eyebrow { color: #b7e5df; font-size: .82rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; }
+    h1 { max-width: 800px; margin: 10px 0 8px; font-size: clamp(2.2rem, 5vw, 3.8rem); line-height: 1.12; }
+    .subtitle { max-width: 760px; margin: 12px 0 0; color: #e2edf5; font-size: 1.12rem; }
+    .meta { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 26px; }
+    .meta span { padding: 6px 12px; border: 1px solid rgba(255,255,255,.25); border-radius: 999px; color: #f4fbff; font-size: .88rem; }
+    nav {
+      position: sticky; z-index: 3; top: 0; overflow-x: auto;
+      border-bottom: 1px solid var(--line); background: rgba(255,255,255,.96);
+      backdrop-filter: blur(8px);
+    }
+    nav ul { display: flex; width: min(1060px, calc(100% - 36px)); gap: 20px; margin: 0 auto; padding: 12px 0; list-style: none; white-space: nowrap; }
+    nav a { color: var(--muted); font-size: .88rem; font-weight: 650; text-decoration: none; }
+    nav a:hover { color: var(--teal); }
+    main { padding: 28px 0 56px; }
+    section, .summary, .conclusion {
+      margin: 20px 0; padding: clamp(22px, 4vw, 38px);
+      border: 1px solid var(--line); border-radius: 18px; background: #fff; box-shadow: var(--shadow);
+    }
+    h2 { margin: 0 0 14px; color: var(--navy); font-size: clamp(1.45rem, 3vw, 2rem); line-height: 1.25; }
+    h3 { margin: 26px 0 8px; color: var(--navy); font-size: 1.16rem; }
+    p { margin: 10px 0; }
+    .lead { color: var(--muted); font-size: 1.08rem; }
+    .metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 24px 0; }
+    .metric { padding: 18px; border: 1px solid var(--line); border-radius: 14px; background: #f8fbfd; }
+    .metric strong { display: block; color: var(--teal); font-size: 1.8rem; line-height: 1.2; }
+    .metric span { color: var(--muted); font-size: .9rem; }
+    .callout { margin: 18px 0; padding: 14px 18px; border-left: 4px solid var(--teal); border-radius: 8px; background: #eef8f6; }
+    .note { color: var(--muted); font-size: .9rem; }
+    .grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; align-items: start; }
+    figure { margin: 18px 0; }
+    figure img { display: block; width: 100%; height: auto; border: 1px solid var(--line); border-radius: 12px; }
+    figcaption { margin-top: 8px; color: var(--muted); font-size: .88rem; text-align: center; }
+    table { width: 100%; margin: 16px 0; border-collapse: collapse; }
+    th, td { padding: 11px 13px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+    th { color: var(--navy); background: #f3f7fb; font-size: .9rem; }
+    tr:last-child td { border-bottom: 0; }
+    .table-wrap { overflow-x: auto; }
+    code { padding: .12em .38em; border-radius: 5px; background: #f0f4f7; color: #244e70; font: .92em Consolas, "Courier New", monospace; }
+    pre { overflow-x: auto; margin: 14px 0; padding: 17px 19px; border-radius: 12px; background: #172635; color: #e8f1f8; line-height: 1.55; }
+    pre code { padding: 0; background: transparent; color: inherit; }
+    .steps { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin: 20px 0; }
+    .step { position: relative; min-height: 132px; padding: 16px 13px; border: 1px solid var(--line); border-radius: 13px; background: #f8fbfd; }
+    .step b { display: block; margin-bottom: 8px; color: var(--teal); }
+    .step span { color: var(--muted); font-size: .88rem; }
+    .good { color: var(--green); font-weight: 750; }
+    .tag { display: inline-block; padding: 3px 9px; border-radius: 999px; background: #e9f6ef; color: var(--green); font-size: .8rem; font-weight: 700; }
+    .conclusion { border: 0; color: #fff; background: linear-gradient(125deg, #173b61, #16877b); }
+    .conclusion h2 { color: #fff; }
+    .conclusion p { color: #eaf5f5; }
+    footer { padding: 4px 0 36px; color: var(--muted); font-size: .88rem; text-align: center; }
+    @media (max-width: 760px) {
+      .metrics { grid-template-columns: 1fr; }
+      .grid-2 { grid-template-columns: 1fr; }
+      .steps { grid-template-columns: 1fr; }
+      .step { min-height: auto; }
+    }
+    @media print {
+      body { background: #fff; font-size: 11pt; }
+      nav { display: none; }
+      .hero { padding: 30px 0; print-color-adjust: exact; }
+      .hero-inner, main, footer { width: 100%; }
+      section, .summary, .conclusion { break-inside: avoid; box-shadow: none; }
+      a { color: inherit; text-decoration: none; }
+    }
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <div class="hero-inner">
+      <div class="eyebrow">Báo cáo thực hành 2 · Nhóm 10</div>
+      <h1>Transfer Learning cho phân loại ảnh thú cưng</h1>
+      <p class="subtitle">So sánh VGG16 và DenseNet121 trên bộ dữ liệu Oxford-IIIT Pet gồm 37 giống chó và mèo.</p>
+      <div class="meta">
+        <span>Học phần: CNN &amp; Transfer Learning</span>
+        <span>Dataset: Oxford-IIIT Pet</span>
+        <span>Phân loại: 37 lớp</span>
+      </div>
+    </div>
+  </header>
+  <nav aria-label="Mục lục báo cáo">
+    <ul>
+      <li><a href="#tom-tat">Tóm tắt</a></li>
+      <li><a href="#du-lieu">Dữ liệu</a></li>
+      <li><a href="#tien-xu-ly">Tiền xử lý</a></li>
+      <li><a href="#mo-hinh">Mô hình</a></li>
+      <li><a href="#huan-luyen">Huấn luyện</a></li>
+      <li><a href="#ket-qua">Kết quả</a></li>
+      <li><a href="#danh-gia">Đánh giá</a></li>
+      <li><a href="#ket-luan">Kết luận</a></li>
+    </ul>
+  </nav>
+  <main>
+    <section class="summary" id="tom-tat">
+      <h2>Tóm tắt kết quả</h2>
+      <p class="lead">Nhóm tận dụng trọng số pretrained ImageNet, điều chỉnh đầu phân loại thành 37 lớp và chọn checkpoint bằng validation trước khi đánh giá trên test.</p>
+      <div class="metrics">
+        <div class="metric"><strong>91.31%</strong><span>Test accuracy · DenseNet121</span></div>
+        <div class="metric"><strong>88.80%</strong><span>Test accuracy · VGG16</span></div>
+        <div class="metric"><strong>+2.51 điểm %</strong><span>Chênh lệch accuracy trong lần chạy này</span></div>
+      </div>
+      <div class="callout"><b>Kết quả chính:</b> DenseNet121 với learning rate 0.001, batch size 16 đạt test accuracy cao nhất trong các cấu hình được đánh giá. Đây là kết quả của split và lần chạy hiện tại, không phải kết luận tổng quát cho mọi bộ dữ liệu.</div>
+    </section>
+
+    <section id="muc-tieu">
+      <h2>1. Mục tiêu và bài toán</h2>
+      <p>Bài toán là phân loại ảnh vào một trong 37 giống chó/mèo. Thay vì huấn luyện mạng sâu từ đầu, Transfer Learning sử dụng các đặc trưng đã học từ ImageNet, thay lớp phân loại cuối theo số lớp mới và huấn luyện phần phân loại.</p>
+      <ul>
+        <li>So sánh hai kiến trúc pretrained VGG16 và DenseNet121.</li>
+        <li>Đánh giá learning rate 0.01 và 0.001 trong các cấu hình đã chạy.</li>
+        <li>Chọn cấu hình theo validation, sau đó đánh giá test.</li>
+      </ul>
+      <p><b>Phạm vi:</b> kết quả CSV hiện tại gồm bốn cấu hình, batch size đều là 16. Vì vậy nhóm chưa so sánh batch size 16 với 32.</p>
+    </section>
+
+    <section id="du-lieu">
+      <h2>2. Bộ dữ liệu và kiểm tra dữ liệu</h2>
+      <p>Oxford-IIIT Pet được tổ chức theo định dạng <code>ImageFolder</code>: mỗi thư mục con tương ứng với một lớp. Train và validation được tách phân tầng 80/20 từ split trainval; test giữ nguyên split chính thức.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Tập dữ liệu</th><th>Số ảnh</th><th>Mục đích</th></tr></thead>
+          <tbody>
+            <tr><td>Train</td><td>2,941</td><td>Cập nhật tham số mô hình.</td></tr>
+            <tr><td>Validation</td><td>739</td><td>Theo dõi quá trình học và chọn checkpoint/cấu hình.</td></tr>
+            <tr><td>Test</td><td>3,669</td><td>Đánh giá cuối cho cấu hình đã chọn bằng validation.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="grid-2">
+        <figure>
+          <img src="../bao_cao_hinh_anh/anh_mau_oxford_pet.png" alt="Ảnh mẫu các giống thú cưng trong Oxford-IIIT Pet">
+          <figcaption>Một số lớp ảnh minh họa trong bộ dữ liệu.</figcaption>
+        </figure>
+        <figure>
+          <img src="../bao_cao_hinh_anh/phan_bo_dataset.png" alt="Biểu đồ phân bố train, validation và test">
+          <figcaption>Phân bố ảnh theo ba tập dữ liệu.</figcaption>
+        </figure>
+      </div>
+      <p>Nhóm kiểm tra 37 thư mục lớp trong mỗi split và xác nhận danh sách lớp đồng nhất. Kiểm tra SHA-256 không phát hiện ảnh trùng byte-identical giữa các split; phương pháp này không phát hiện ảnh đã đổi định dạng/nén lại hoặc ảnh gần giống.</p>
+      <div class="callout"><b>Vì sao tách ba tập?</b> Train dùng để học; validation dùng để chọn mô hình mà không sử dụng test; test chỉ dùng ở bước cuối để ước lượng khả năng dự đoán trên dữ liệu chưa dùng khi lựa chọn cấu hình.</div>
+    </section>
+
+    <section id="tien-xu-ly">
+      <h2>3. Tiền xử lý và nạp ảnh</h2>
+      <p>Pipeline trong <code>src/data_loader.py</code> chuyển ảnh về kích thước 224×224 và chuẩn hóa theo thống kê ImageNet. Augmentation ngẫu nhiên chỉ áp dụng ở train để tăng đa dạng ảnh; validation và test dùng phép biến đổi cố định để kết quả ổn định.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Split</th><th>Phép biến đổi</th><th>Lý do</th></tr></thead>
+          <tbody>
+            <tr><td>Train</td><td>Resize 256 → RandomResizedCrop 224 → RandomHorizontalFlip → ToTensor → Normalize</td><td>Tăng đa dạng mẫu, giúp giảm phụ thuộc vào bố cục cố định.</td></tr>
+            <tr><td>Train-eval / Validation / Test</td><td>Resize 256 → CenterCrop 224 → ToTensor → Normalize</td><td>Đánh giá nhất quán, không tạo biến đổi ngẫu nhiên.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Chuẩn hóa từng kênh màu theo công thức <code>(x - mean) / std</code>, với mean = (0.485, 0.456, 0.406) và std = (0.229, 0.224, 0.225). Batch chuẩn có dạng <code>[16, 3, 224, 224]</code>; chiều cuối của nhãn tương ứng với một trong 37 lớp.</p>
+    </section>
+
+    <section id="mo-hinh">
+      <h2>4. Xây dựng mô hình học chuyển giao</h2>
+      <p>Trong bài thực hành này, nhóm tiến hành so sánh hai mô hình học chuyển giao là VGG16 và DenseNet121 trên bộ dữ liệu Oxford-IIIT Pet. Cả hai mô hình đều được khởi tạo từ các trọng số pretrained trên ImageNet, giúp tận dụng các đặc trưng đã học từ một tập dữ liệu lớn trước đó. Sau đó, lớp phân loại cuối được thay thế bằng đầu ra mới tương ứng với 37 nhãn của bộ dữ liệu Oxford-IIIT Pet.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Mô hình</th><th>Đặc điểm</th><th>Tham số trainable / tổng</th></tr></thead>
+          <tbody>
+            <tr><td><b>VGG16</b></td><td>Các tầng tích chập tuần tự; kiến trúc kinh điển, dễ mô tả.</td><td>151,589 / 134,412,133</td></tr>
+            <tr><td><b>DenseNet121</b></td><td>Các dense block truyền/tái sử dụng đặc trưng giữa nhiều tầng.</td><td>37,925 / 6,991,781</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Việc giữ nguyên backbone và chỉ cập nhật phần đầu phân loại giúp giảm thời gian huấn luyện đồng thời vẫn giữ được hiệu quả của các đặc trưng tổng quát đã học từ ImageNet. Đây là cách làm phổ biến trong transfer learning khi dữ liệu mới có quy mô hạn chế nhưng cần tối ưu hiệu suất phân loại. Cách hoạt động cơ bản là: backbone trích xuất đặc trưng từ ảnh, sau đó lớp classifier cuối sẽ dự đoán một trong 37 nhãn. Đây là lý do vì sao phương pháp này phù hợp cho bài toán phân loại ảnh thú cưng.</p>
+      <pre><code>self.backbone = models.densenet121(weights="IMAGENET1K_V1")
+self.backbone.classifier = nn.Linear(1024, num_classes)
+
+# hoặc với VGG16
+self.backbone = models.vgg16(weights="IMAGENET1K_V1")
+self.backbone.classifier[6] = nn.Linear(4096, num_classes)</code></pre>
+    </section>
+
+    <section id="huan-luyen">
+      <h2>5. Quy trình huấn luyện và chọn checkpoint</h2>
+      <div class="steps">
+        <div class="step"><b>01 · Chuẩn bị</b><span>Đọc ảnh và nhãn thành batch, đưa lên thiết bị tính toán.</span></div>
+        <div class="step"><b>02 · Dự đoán</b><span>Backbone trích xuất đặc trưng, classifier tạo 37 logits.</span></div>
+        <div class="step"><b>03 · Cập nhật</b><span>CrossEntropyLoss đo lỗi; Adam cập nhật tham số trainable.</span></div>
+        <div class="step"><b>04 · Validation</b><span>Đo loss/accuracy sau mỗi epoch; lưu checkpoint theo val loss thấp nhất.</span></div>
+        <div class="step"><b>05 · Đánh giá</b><span>Chọn cấu hình bằng validation rồi mới chạy test cho cấu hình được chọn.</span></div>
+      </div>
+      <p>Chương trình giới hạn tối đa 5 epoch trong các lần chạy báo cáo và dùng early stopping với patience 3: dừng khi validation loss không cải thiện ba epoch liên tiếp. TensorBoard ghi metric train (có augmentation), train-eval (transform cố định), validation và test của cấu hình được chọn; CSV tổng hợp kết quả trong <code>outputs/reduced-experiments/results.csv</code>.</p>
+      <pre><code>python src/main.py --data-dir dataset --epochs 5 --patience 3 \
+  --batch-size 16 --tune --output-dir outputs/reduced-experiments</code></pre>
+      <p class="note">Lệnh trên cho phép chạy ma trận tuning theo cấu hình mặc định của chương trình. Kết quả được trình bày bên dưới chỉ gồm các lần chạy thực tế trong CSV; không suy diễn thành các cấu hình chưa chạy.</p>
+    </section>
+
+    <section id="ket-qua">
+      <h2>6. Kết quả thực nghiệm</h2>
+      <p>Thực nghiệm đã chạy hai kiến trúc với learning rate 0.01 và 0.001; batch size cố định 16. Chỉ các cấu hình tốt nhất theo validation mới được giữ lại để đánh giá trên test.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Mô hình</th><th>LR</th><th>Batch</th><th>Epoch tốt nhất / đã chạy</th><th>Val loss</th><th>Val accuracy</th><th>Test accuracy</th></tr></thead>
+          <tbody>
+            <tr><td>VGG16</td><td>0.001</td><td>16</td><td>4 / 5</td><td>0.2831</td><td>91.34%</td><td>88.80%</td></tr>
+            <tr><td>DenseNet121</td><td>0.001</td><td>16</td><td>4 / 5</td><td>0.2767</td><td>91.88%</td><td>91.31%</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <figure>
+        <img src="../bao_cao_hinh_anh/so_sanh_validation_test.png" alt="Biểu đồ so sánh validation accuracy, validation loss và test accuracy">
+        <figcaption>Biểu đồ lấy từ results.csv. Màu xanh lá đánh dấu cấu hình được chọn bằng validation; test chỉ hiển thị hai cấu hình đã chọn.</figcaption>
+      </figure>
+      <figure>
+        <img src="../bao_cao_hinh_anh/ket_qua_demo_1_epoch.png" alt="Kết quả demo DenseNet121 sau một epoch">
+        <figcaption>Ảnh demo DenseNet121 sau một epoch; không phải kết quả cuối của toàn bộ thí nghiệm.</figcaption>
+      </figure>
+    </section>
+
+    <section id="danh-gia">
+      <h2>7. Đánh giá và thảo luận</h2>
+      <ul>
+        <li><b>Learning rate:</b> LR 0.001 có validation loss thấp hơn LR 0.01 ở cả hai kiến trúc trong lần chạy này.</li>
+        <li><b>Kiến trúc:</b> DenseNet121 đạt test accuracy 91.31%, cao hơn VGG16 88.80% khoảng 2.51 điểm phần trăm; test loss lần lượt là 0.3236 và 0.3450.</li>
+        <li><b>Khả năng tổng quát hóa:</b> tại checkpoint tốt nhất, khoảng cách train-eval và validation accuracy xấp xỉ 4.07 điểm phần trăm với DenseNet121 và 3.80 điểm phần trăm với VGG16. Đây là dấu hiệu cần theo dõi, không đủ để khẳng định mô hình hoàn toàn không overfit.</li>
+        <li><b>Chọn checkpoint:</b> validation accuracy của hai mô hình đã chọn gần nhau (91.88% và 91.34%); test được dùng sau bước lựa chọn để so sánh cuối.</li>
+      </ul>
+      <div class="callout"><b>Diễn giải:</b> kết quả ủng hộ DenseNet121 cho cấu hình và split hiện tại. Cần nhiều seed hoặc k-fold trước khi khẳng định ưu thế ổn định trên các lần chia dữ liệu khác.</div>
+    </section>
+
+    <section id="han-che">
+      <h2>8. Hạn chế và hướng cải thiện</h2>
+      <ol>
+        <li>Batch size cố định 16; chạy thêm batch size 32 để đánh giá ảnh hưởng của siêu tham số này.</li>
+        <li>Kết quả dựa trên một seed và một split; bổ sung nhiều seed hoặc k-fold để ước lượng độ ổn định.</li>
+        <li>Giới hạn 5 epoch và môi trường CPU; khảo sát thêm thời gian, tài nguyên và fine-tuning sâu hơn.</li>
+        <li>Kiểm tra checksum không nhận diện ảnh gần giống hoặc ảnh đã được nén lại; cân nhắc perceptual hash.</li>
+        <li>Bổ sung confusion matrix và precision/recall theo lớp để tìm các giống thường bị nhầm.</li>
+      </ol>
+    </section>
+
+    <section class="conclusion" id="ket-luan">
+      <h2>9. Kết luận</h2>
+      <p>Nhóm đã xây dựng pipeline phân loại 37 giống chó/mèo bằng transfer learning với VGG16 và DenseNet121. Quy trình gồm kiểm tra split dữ liệu, tiền xử lý ảnh, augmentation chỉ ở train, huấn luyện với CrossEntropyLoss và Adam, chọn checkpoint theo validation loss, sau đó đánh giá test.</p>
+      <p>Trong các cấu hình thực nghiệm đã có, DenseNet121 với LR 0.001 và batch size 16 đạt test accuracy 91.31%, cao hơn VGG16. Kết luận được giới hạn trong lần thực nghiệm này; cần thêm batch size, seed và lần chạy để đánh giá độ ổn định.</p>
+    </section>
+
+    <section id="tai-lieu">
+      <h2>Mã nguồn và tài liệu tham khảo trong dự án</h2>
+      <ul>
+        <li><a href="../README.md">README — hướng dẫn tổng quan và cách chạy</a></li>
+        <li><a href="../src/data_loader.py">data_loader.py — tiền xử lý ảnh và tạo DataLoader cho dữ liệu huấn luyện, validation và test</a></li>
+        <li><a href="../src/models.py">models.py — điều phối lựa chọn mô hình và đếm tham số</a></li>
+        <li><a href="../src/vgg16_model.py">vgg16_model.py — triển khai riêng mô hình VGG16</a></li>
+        <li><a href="../src/densenet121_model.py">densenet121_model.py — triển khai riêng mô hình DenseNet121</a></li>
+        <li><a href="../src/engine.py">engine.py — quy trình huấn luyện, đánh giá và lưu kết quả</a></li>
+        <li><a href="../src/main.py">main.py — điều phối toàn bộ thí nghiệm và xuất ra các file kết quả</a></li>
+        <li><a href="../docs/data_model_validation.md">Báo cáo kiểm tra dữ liệu và mô hình</a></li>
+      </ul>
+      <p class="note">Toàn bộ quy trình của dự án được tổ chức theo từng module rõ ràng và dễ theo dõi. Báo cáo thuộc bài thực hành của Nhóm 10, và các số liệu kết quả được lấy từ <code>outputs/reduced-experiments/results.csv</code>.</p>
+    </section>
+  </main>
+  <footer>Nhóm 10 · Thực hành 2 · Transfer Learning với VGG16 và DenseNet121</footer>
+</body>
+</html>
