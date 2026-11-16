@@ -219,10 +219,13 @@ self.backbone.classifier[6] = nn.Linear(4096, num_classes)</code></pre>
         <div class="step"><b>04 · Validation</b><span>Đo loss/accuracy sau mỗi epoch; lưu checkpoint theo val loss thấp nhất.</span></div>
         <div class="step"><b>05 · Đánh giá</b><span>Chọn cấu hình bằng validation rồi mới chạy test cho cấu hình được chọn.</span></div>
       </div>
-      <p>Chương trình giới hạn tối đa 5 epoch trong các lần chạy báo cáo và dùng early stopping với patience 3: dừng khi validation loss không cải thiện ba epoch liên tiếp. TensorBoard ghi metric train (có augmentation), train-eval (transform cố định), validation và test của cấu hình được chọn; CSV tổng hợp kết quả trong <code>outputs/reduced-experiments/results.csv</code>.</p>
+      <p>Chương trình giới hạn tối đa 5 epoch trong các lần chạy báo cáo và dùng early stopping với patience 3: dừng khi validation loss không cải thiện ba epoch liên tiếp. Phần ghi log được tách trong <code>src/tensorboard_logger.py</code>. TensorBoard lưu loss và accuracy của train (có augmentation), train-eval (transform cố định), validation, cùng learning rate và batch size; test chỉ được ghi cho cấu hình được chọn. CSV tổng hợp kết quả trong <code>outputs/reduced-experiments/results.csv</code>.</p>
       <pre><code>python src/main.py --data-dir dataset --epochs 5 --patience 3 \
   --batch-size 16 --tune --output-dir outputs/reduced-experiments</code></pre>
       <p class="note">Lệnh trên cho phép chạy ma trận tuning theo cấu hình mặc định của chương trình. Kết quả được trình bày bên dưới chỉ gồm các lần chạy thực tế trong CSV; không suy diễn thành các cấu hình chưa chạy.</p>
+      <p>Để xem các đường cong sau khi chạy thí nghiệm, mở TensorBoard bằng lệnh:</p>
+      <pre><code>python -m tensorboard.main --logdir outputs/reduced-experiments</code></pre>
+      <p class="note">Trong Scalars, có thể so sánh <code>Loss/train</code>, <code>Loss/train_eval</code>, <code>Loss/validation</code> và các tag <code>Accuracy/...</code>. Train-eval dùng transform cố định nên phù hợp hơn train có augmentation khi so sánh với validation.</p>
     </section>
 
     <section id="ket-qua">
@@ -285,6 +288,7 @@ self.backbone.classifier[6] = nn.Linear(4096, num_classes)</code></pre>
         <li><a href="../src/densenet121_model.py">densenet121_model.py — triển khai riêng mô hình DenseNet121</a></li>
         <li><a href="../src/engine.py">engine.py — quy trình huấn luyện, đánh giá và lưu kết quả</a></li>
         <li><a href="../src/main.py">main.py — điều phối toàn bộ thí nghiệm và xuất ra các file kết quả</a></li>
+        <li><a href="../src/tensorboard_logger.py">tensorboard_logger.py — ghi metric và hyperparameter vào TensorBoard</a></li>
         <li><a href="../docs/data_model_validation.md">Báo cáo kiểm tra dữ liệu và mô hình</a></li>
       </ul>
       <p class="note">Toàn bộ quy trình của dự án được tổ chức theo từng module rõ ràng và dễ theo dõi. Báo cáo thuộc bài thực hành của Nhóm 10, và các số liệu kết quả được lấy từ <code>outputs/reduced-experiments/results.csv</code>.</p>

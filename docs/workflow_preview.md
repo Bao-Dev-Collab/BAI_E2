@@ -63,6 +63,7 @@ BAI_E2/
 │   ├── data_loader.py      # Image transforms and DataLoaders
 │   ├── engine.py           # Training and evaluation loops
 │   ├── main.py             # Experiment setup and coordination
+│   ├── tensorboard_logger.py # TensorBoard scalar logging
 │   ├── models.py           # Shared model dispatcher
 │   ├── vgg16_model.py      # VGG16 implementation
 │   └── densenet121_model.py # DenseNet121 implementation
@@ -88,4 +89,5 @@ Assign these work packages to available group members; combine roles if the grou
 - `src/densenet121_model.py` — DenseNet121 model construction
 - `src/engine.py` — training and evaluation calculations
 - `src/main.py` — experiment orchestration and result saving
+- `src/tensorboard_logger.py` — TensorBoard writer and scalar logging
 - `notebooks/bao_cao_thuc_hanh_2_transfer_learning.ipynb` — detailed notebook report

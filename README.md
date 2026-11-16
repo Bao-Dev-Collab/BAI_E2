@@ -160,6 +160,7 @@ BAI_E2/
 │   ├── data_loader.py      # Transform và tạo DataLoader
 │   ├── engine.py           # Vòng lặp train/evaluate và metrics
 │   ├── main.py             # Chạy thí nghiệm, tuning và lưu kết quả
+│   ├── tensorboard_logger.py # Ghi scalar và hyperparameter vào TensorBoard
 │   ├── models.py           # Giữ API build_model/count_parameters dùng chung
 │   ├── vgg16_model.py      # Triển khai riêng mô hình VGG16
 │   └── densenet121_model.py # Triển khai riêng mô hình DenseNet121
@@ -175,6 +176,7 @@ BAI_E2/
 | `src/densenet121_model.py` | Khởi tạo DenseNet121, thay classifier và thiết lập fine-tuning |
 | `src/engine.py` | Train một epoch và tính loss/accuracy |
 | `src/main.py` | Điều phối cấu hình, chọn checkpoint và đánh giá |
+| `src/tensorboard_logger.py` | Tạo event writer, ghi scalar metrics và flush log |
 | `notebooks/bao_cao_thuc_hanh_2_transfer_learning.ipynb` | Báo cáo dạng notebook |
 
 ## 7. Cài đặt và chạy
@@ -211,6 +213,16 @@ python src/main.py `
 ```powershell
 python src/main.py --help
 ```
+
+### Xem log TensorBoard
+
+Mỗi cấu hình có thư mục log riêng bên trong `--output-dir`. Mã ghi log nằm trong [`src/tensorboard_logger.py`](src/tensorboard_logger.py); các metric gồm train có augmentation, train-eval với transform cố định, validation, learning rate, batch size và test của cấu hình được chọn.
+
+```powershell
+python -m tensorboard.main --logdir .\outputs\reduced-experiments
+```
+
+Sau khi TensorBoard khởi động, mở địa chỉ local được in ra (thường là `http://localhost:6006`). Trong Scalars, xem `Loss/train`, `Loss/train_eval`, `Loss/validation` và các tag `Accuracy/...`; test chỉ được ghi cho cấu hình đã chọn bằng validation.
 
 ## 8. Giới hạn và hướng tiếp tục
 

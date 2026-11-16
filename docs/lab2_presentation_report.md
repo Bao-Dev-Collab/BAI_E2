@@ -412,7 +412,7 @@ Ví dụ `0.9131` tương đương khoảng 91,31% ảnh test được phân lo�
 
 ## 9. TensorBoard và file đầu ra
 
-Trong `main.py`, mỗi epoch ghi:
+Phần ghi log được tách trong [`src/tensorboard_logger.py`](../src/tensorboard_logger.py); `main.py` gọi các hàm này sau mỗi epoch và sau khi đánh giá test. Các tag gồm:
 
 - `Loss/train`, `Accuracy/train`: metric trong lúc train, trên ảnh có augmentation
 - `Loss/train_eval`, `Accuracy/train_eval`: metric train ở chế độ đánh giá, cùng transform cố định với validation
@@ -420,23 +420,27 @@ Trong `main.py`, mỗi epoch ghi:
 - Learning rate và batch size
 - `Loss/test`, `Accuracy/test` chỉ cho cấu hình được chọn bằng validation loss
 
-Đoạn code ghi biểu đồ trong [`main.py`](./main.py):
+Ví dụ hàm ghi metric cho một epoch:
 
 ```python
-writer.add_scalar("Loss/train", train_metrics["loss"], epoch)
-writer.add_scalar("Loss/train_eval", train_eval_metrics["loss"], epoch)
-writer.add_scalar("Loss/validation", val_metrics["loss"], epoch)
-writer.add_scalar("Accuracy/train", train_metrics["accuracy"], epoch)
-writer.add_scalar("Accuracy/train_eval", train_eval_metrics["accuracy"], epoch)
-writer.add_scalar("Accuracy/validation", val_metrics["accuracy"], epoch)
+def log_epoch_metrics(writer, epoch, train_metrics, train_eval_metrics,
+                      val_metrics, learning_rate, batch_size):
+    writer.add_scalar("Loss/train", train_metrics["loss"], epoch)
+    writer.add_scalar("Loss/train_eval", train_eval_metrics["loss"], epoch)
+    writer.add_scalar("Loss/validation", val_metrics["loss"], epoch)
+    writer.add_scalar("Accuracy/train", train_metrics["accuracy"], epoch)
+    writer.add_scalar("Accuracy/train_eval", train_eval_metrics["accuracy"], epoch)
+    writer.add_scalar("Accuracy/validation", val_metrics["accuracy"], epoch)
+    writer.add_scalar("Hyperparameters/learning_rate", learning_rate, epoch)
+    writer.add_scalar("Hyperparameters/batch_size", batch_size, epoch)
 ```
 
-Mỗi đường biểu đồ dùng tên tag riêng, nên có thể bật/tắt hoặc so sánh train với validation trong TensorBoard.
+Mỗi đường biểu đồ có tag riêng để bật/tắt hoặc so sánh trong TensorBoard. Train có augmentation; `train_eval` dùng transform cố định giống validation nên phù hợp hơn để xem khoảng cách train-validation.
 
 Chạy TensorBoard trong terminal thứ hai:
 
 ```powershell
-.\.venv\Scripts\python.exe -m tensorboard.main --logdir .\outputs
+.\.venv\Scripts\python.exe -m tensorboard.main --logdir .\outputs\reduced-experiments
 ```
 
 Mở địa chỉ local mà TensorBoard in ra, thường là `http://localhost:6006`.

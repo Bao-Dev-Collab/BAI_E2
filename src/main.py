@@ -7,17 +7,19 @@ import tempfile
 import shutil
 from pathlib import Path
 import random
-from typing import TYPE_CHECKING, Callable
 
 import torch
 from torch import nn
 
-if TYPE_CHECKING:
-    from torch.utils.tensorboard import SummaryWriter
-
 from data_loader import create_dataloaders
 from engine import evaluate, train_one_epoch
 from models import build_model, count_parameters
+from tensorboard_logger import (
+    create_summary_writer,
+    flush_summary_writer,
+    log_epoch_metrics,
+    log_test_metrics,
+)
 
 
 def parse_args() -> argparse.Namespace:
@@ -79,7 +81,6 @@ def run_experiment(
     batch_size: int,
     args: argparse.Namespace,
     device: torch.device,
-    summary_writer_type: Callable[..., SummaryWriter],
     class_names: list[str] | None = None,
 ) -> dict[str, object]:
     set_seed(args.seed)
@@ -124,7 +125,7 @@ def run_experiment(
     epochs_completed = 0
     best_state: dict[str, torch.Tensor] | None = None
 
-    with summary_writer_type(log_dir=str(run_dir)) as writer:
+    with create_summary_writer(run_dir) as writer:
         for epoch in range(1, args.epochs + 1):
             epochs_completed = epoch
             train_metrics = train_one_epoch(
@@ -134,16 +135,15 @@ def run_experiment(
                 model, train_eval_loader, criterion, device
             )
             val_metrics = evaluate(model, val_loader, criterion, device)
-            writer.add_scalar("Loss/train", train_metrics["loss"], epoch)
-            writer.add_scalar("Loss/train_eval", train_eval_metrics["loss"], epoch)
-            writer.add_scalar("Loss/validation", val_metrics["loss"], epoch)
-            writer.add_scalar("Accuracy/train", train_metrics["accuracy"], epoch)
-            writer.add_scalar(
-                "Accuracy/train_eval", train_eval_metrics["accuracy"], epoch
+            log_epoch_metrics(
+                writer,
+                epoch,
+                train_metrics,
+                train_eval_metrics,
+                val_metrics,
+                learning_rate,
+                batch_size,
             )
-            writer.add_scalar("Accuracy/validation", val_metrics["accuracy"], epoch)
-            writer.add_scalar("Hyperparameters/learning_rate", learning_rate, epoch)
-            writer.add_scalar("Hyperparameters/batch_size", batch_size, epoch)
             print(
                 f"Epoch {epoch:02d}/{args.epochs} | "
                 f"train-aug loss={train_metrics['loss']:.4f}, "
@@ -177,7 +177,7 @@ def run_experiment(
 
         if best_state is None:
             raise RuntimeError("Training did not produce a best validation checkpoint.")
-        writer.flush()
+        flush_summary_writer(writer)
 
     print(
         f"Best validation loss={best_val_loss:.4f}, "
@@ -204,7 +204,6 @@ def evaluate_selected_checkpoint(
     result: dict[str, object],
     args: argparse.Namespace,
     device: torch.device,
-    summary_writer_type: Callable[..., SummaryWriter],
     class_names: list[str] | None = None,
 ) -> None:
     _, _, _, test_loader, loader_class_names = create_dataloaders(
@@ -227,12 +226,13 @@ def evaluate_selected_checkpoint(
     result["test_loss"] = test_metrics["loss"]
     result["test_accuracy"] = test_metrics["accuracy"]
 
-    with summary_writer_type(log_dir=str(checkpoint_path.parent)) as writer:
-        writer.add_scalar("Loss/test", test_metrics["loss"], int(result["best_epoch"]))
-        writer.add_scalar(
-            "Accuracy/test", test_metrics["accuracy"], int(result["best_epoch"])
+    with create_summary_writer(checkpoint_path.parent) as writer:
+        log_test_metrics(
+            writer,
+            test_metrics,
+            int(result["best_epoch"]),
         )
-        writer.flush()
+        flush_summary_writer(writer)
 
     print(
         f"Final test for validation-selected configuration "
@@ -341,8 +341,6 @@ def main() -> None:
             "Install them with 'pip install -r requirements.txt'."
         )
 
-    from torch.utils.tensorboard import SummaryWriter
-
     set_seed(args.seed)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"Using device: {device}")
@@ -367,7 +365,6 @@ def main() -> None:
                 batch_size,
                 args,
                 device,
-                SummaryWriter,
                 expected_classes,
             )
             if expected_classes is None:
@@ -388,7 +385,6 @@ def main() -> None:
             selected_result,
             args,
             device,
-            SummaryWriter,
             expected_classes,
         )
 

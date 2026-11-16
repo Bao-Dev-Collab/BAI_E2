@@ -52,7 +52,7 @@ Như vậy project đã có so sánh learning rate. Batch size 32 chưa được
 .\.venv\Scripts\python.exe -m tensorboard.main --logdir .\outputs\reduced-experiments
 ```
 
-Sau đó mở địa chỉ TensorBoard được in trong terminal, thường là `http://localhost:6006`. Dừng máy chủ bằng `Ctrl+C`.
+Code ghi scalar metrics nằm trong `src/tensorboard_logger.py`; `main.py` gọi module này khi train và đánh giá. Sau đó mở địa chỉ TensorBoard được in trong terminal, thường là `http://localhost:6006`. Dừng máy chủ bằng `Ctrl+C`.
 
 Trong TensorBoard, kiểm tra các tag như `Loss/train`, `Loss/train_eval`, `Loss/validation`, `Accuracy/train`, `Accuracy/train_eval` và `Accuracy/validation`. Các tag test chỉ xuất hiện ở cấu hình được chọn.
 
