@@ -219,6 +219,12 @@ self.backbone.classifier[6] = nn.Linear(4096, num_classes)</code></pre>
         <div class="step"><b>04 · Validation</b><span>Đo loss/accuracy sau mỗi epoch; lưu checkpoint theo val loss thấp nhất.</span></div>
         <div class="step"><b>05 · Đánh giá</b><span>Chọn cấu hình bằng validation rồi mới chạy test cho cấu hình được chọn.</span></div>
       </div>
+      <p>Code khởi tạo <code>CrossEntropyLoss</code> và Adam nằm trong <code>src/main.py</code>. Loss so sánh 37 logits của mô hình với nhãn đúng; Adam được tạo để cập nhật những tham số có <code>requires_grad=True</code>. Vòng lặp trong <code>src/engine.py</code> thực hiện các bước sau cho từng batch:</p>
+      <pre><code>logits = model(images)
+loss = criterion(logits, labels)
+loss.backward()
+optimizer.step()</code></pre>
+      <p class="note"><code>loss.backward()</code> tính gradient từ lỗi; <code>optimizer.step()</code> cập nhật trọng số. Khi validation/test, vòng lặp không có optimizer nên không cập nhật mô hình.</p>
       <p>Chương trình giới hạn tối đa 5 epoch trong các lần chạy báo cáo và dùng early stopping với patience 3: dừng khi validation loss không cải thiện ba epoch liên tiếp. Phần ghi log được tách trong <code>src/tensorboard_logger.py</code>. TensorBoard lưu loss và accuracy của train (có augmentation), train-eval (transform cố định), validation, cùng learning rate và batch size; test chỉ được ghi cho cấu hình được chọn. CSV tổng hợp kết quả trong <code>outputs/reduced-experiments/results.csv</code>.</p>
       <pre><code>python src/main.py --data-dir dataset --epochs 5 --patience 3 \
   --batch-size 16 --tune --output-dir outputs/reduced-experiments</code></pre>

@@ -105,6 +105,19 @@ Các transform và DataLoader được định nghĩa trong [`src/data_loader.py
 
 Ảnh đầu vào đi qua backbone để tạo đặc trưng. Classifier cuối chuyển đặc trưng thành 37 logits, tương ứng với điểm dự đoán cho từng giống. Trong lúc train, CrossEntropyLoss đo sai khác giữa dự đoán và nhãn thật; Adam cập nhật các tham số đang được mở train.
 
+### CrossEntropyLoss và Adam làm gì?
+
+Phần khởi tạo nằm trong [`src/main.py`](src/main.py): `CrossEntropyLoss` đo mức sai lệch giữa 37 logits và nhãn đúng; Adam được tạo với các tham số có `requires_grad=True`. Vòng lặp ở [`src/engine.py`](src/engine.py) thực hiện phép tính và cập nhật cho mỗi batch:
+
+```python
+logits = model(images)
+loss = criterion(logits, labels)
+loss.backward()
+optimizer.step()
+```
+
+`loss.backward()` tính gradient từ lỗi; `optimizer.step()` dùng gradient đó để cập nhật tham số trainable. Trong validation/test, optimizer không được truyền vào vòng lặp nên trọng số không bị cập nhật.
+
 Với cấu hình mặc định, các tầng trích xuất đặc trưng pretrained bị đóng băng để hạn chế số tham số cần cập nhật. Tùy chọn `--fine-tune-last-block` có thể mở thêm khối đặc trưng cuối, nhưng không được dùng trong các kết quả bên dưới.
 
 ### So sánh hai backbone

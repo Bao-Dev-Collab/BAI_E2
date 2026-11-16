@@ -12,6 +12,19 @@ Hai kiến trúc được chọn để đối chiếu hai cách trích xuất đ
 
 Mặc định, các tầng trích xuất đặc trưng được đóng băng và chỉ classifier mới được cập nhật. Cách này tận dụng kiến thức từ ImageNet, đồng thời hạn chế số tham số cần học trên bộ dữ liệu mới. Có thể bật `--fine-tune-last-block` để mở thêm khối đặc trưng cuối, nhưng tùy chọn này không được sử dụng trong các kết quả được phân tích ở đây.
 
+### Loss và optimizer
+
+`CrossEntropyLoss` và Adam được khởi tạo trong [`src/main.py`](../src/main.py). Loss đo sai lệch giữa 37 logits và nhãn đúng; Adam cập nhật những tham số có `requires_grad=True`. Vòng lặp trong [`src/engine.py`](../src/engine.py) tính dự đoán, gradient và cập nhật tham số theo từng batch:
+
+```python
+logits = model(images)
+loss = criterion(logits, labels)
+loss.backward()
+optimizer.step()
+```
+
+Khi đánh giá validation hoặc test, optimizer không được truyền vào nên chỉ tính metric, không cập nhật trọng số.
+
 ### Đoạn code chính
 
 Phần khởi tạo từng kiến trúc được tách riêng: `src/vgg16_model.py` và `src/densenet121_model.py`. `src/models.py` giữ hàm `build_model()` để `main.py` tiếp tục chọn model theo tên như trước.

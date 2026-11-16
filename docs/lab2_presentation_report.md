@@ -278,7 +278,7 @@ Batch size `32` cũng có trong các cấu hình thử nghiệm để xem ảnh 
 criterion = nn.CrossEntropyLoss()
 ```
 
-Đầu ra của mạng là 37 điểm số (logits), mỗi điểm tương ứng một giống. `CrossEntropyLoss` so sánh các điểm số này với nhãn đúng dạng class index, phù hợp với phân loại nhiều lớp.
+Khởi tạo loss nằm trong [`src/main.py`](../src/main.py). Đầu ra của mạng là 37 điểm số (logits), mỗi điểm tương ứng một giống. `CrossEntropyLoss` so sánh các điểm số này với nhãn đúng dạng class index, phù hợp với phân loại nhiều lớp.
 
 ### Optimizer: Adam
 
@@ -289,11 +289,11 @@ optimizer = torch.optim.Adam(
 )
 ```
 
-Adam tự điều chỉnh bước cập nhật theo thống kê gradient, thường là lựa chọn tiện dụng để bắt đầu fine-tuning. Chỉ các tham số có `requires_grad=True` được đưa vào optimizer.
+Adam cũng được khởi tạo trong [`src/main.py`](../src/main.py). Nó tự điều chỉnh bước cập nhật theo thống kê gradient; chỉ các tham số có `requires_grad=True` được đưa vào optimizer.
 
 ### Vòng lặp train
 
-Trong [`engine.py`](./engine.py), mỗi batch thực hiện các bước cốt lõi:
+Trong [`src/engine.py`](../src/engine.py), mỗi batch thực hiện các bước cốt lõi:
 
 ```python
 optimizer.zero_grad(set_to_none=True)
